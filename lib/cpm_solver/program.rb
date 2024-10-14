@@ -33,7 +33,7 @@ module CpmSolver
         if index == 0
           activity.early_start = activity.planned_start
         else
-          latest_finish_date = activity.predecessors.map(&:early_finish).max
+          latest_finish_date = activity.predecessors.map(&:early_finish).compact.max
           activity.early_start = latest_finish_date
         end
         activity.early_finish = activity.early_start + activity.duration
@@ -50,8 +50,10 @@ module CpmSolver
         end
 
         activity.successors.each do |successor|
-          activity.late_finish = successor.late_start
-          activity.late_start = activity.late_finish - activity.duration
+          if successor.late_start
+            activity.late_finish = successor.late_start
+            activity.late_start = activity.late_finish - activity.duration
+          end
         end
       end
     end

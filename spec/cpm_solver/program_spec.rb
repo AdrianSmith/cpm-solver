@@ -3,7 +3,7 @@ require "cpm_solver/program"
 
 RSpec.describe CpmSolver::Program do
 
-  context "with valid data" do
+  context "with simple program data" do
     # https://www.pmcalculators.com/how-to-calculate-the-critical-path/
     let(:program) { CpmSolver::Program.new("Test") }
     let(:start_date) { Date.new(2020, 3, 1) }
@@ -112,62 +112,97 @@ RSpec.describe CpmSolver::Program do
     end
   end
 
-  def create_house_schedule
+  context "with house program data" do
     # Source: https://hbr.org/1963/09/the-abcs-of-the-critical-path-method
+    let(:program) { CpmSolver::Program.new("HBR Program") }
+    let(:start_date) { Date.new(2020, 3, 1) }
     let(:activity_a) { CpmSolver::Activity.new("a", "Start", 0) }
-    let(:activity_b) { CpmSolver::Activity.new("b", "Excavate and pour footers", 4, [activity_a]) }
-    let(:activity_c) { CpmSolver::Activity.new("c", "Pour concrete foundation", 2, [activity_b]) }
-    let(:activity_d) { CpmSolver::Activity.new("d", "Erect wooden frame including rough roof", 4, [activity_c]) }
-    let(:activity_e) { CpmSolver::Activity.new("e", "Lay brickwork", 6, [activity_d]) }
-    let(:activity_f) { CpmSolver::Activity.new("f", "Install basement drains and plumbing", 1, [activity_c]) }
-    let(:activity_g) { CpmSolver::Activity.new("f", "Pour basement floor", 2, [activity_f]) }
-    let(:activity_h) { CpmSolver::Activity.new("h", "Install rough plumbing", 3, [activity_f]) }
-    let(:activity_i) { CpmSolver::Activity.new("i", "Install rough wiring", 2, [activity_d]) }
-    let(:activity_j) { CpmSolver::Activity.new("j", "Install heating and ventilating", 4, [activity_d, activity_g]) }
-    let(:activity_k) { CpmSolver::Activity.new("k", "Fasten plaster board and plaster (including drying)", 10, [activity_i, activity_j, activity_h]) }
-    let(:activity_l) { CpmSolver::Activity.new("l", "Lay finish flooring", 3, [activity_k]) }
-    let(:activity_m) { CpmSolver::Activity.new("m", "Install kitchen fixtures", 1, [activity_l]) }
-    let(:activity_n) { CpmSolver::Activity.new("n", "Install finish plumbing", 2, [activity_l]) }
-    let(:activity_o) { CpmSolver::Activity.new("o", "Finish carpentry", 3, [activity_l]) }
-    let(:activity_p) { CpmSolver::Activity.new("p", "Finish roofing and flashing", 2, [activity_o]) }
-    let(:activity_q) { CpmSolver::Activity.new("q", "Fasten gutters and downspouts", 1, [activity_p]) }
-    let(:activity_r) { CpmSolver::Activity.new("r", "Lay storm drains for rain water", 1, [activity_c]) }
-    let(:activity_s) { CpmSolver::Activity.new("s", "Sand and varnish flooring", 2, [activity_o, activity_t]) }
-    let(:activity_t) { CpmSolver::Activity.new("t", "Paint", 3, [activity_m, activity_n]) }
-    let(:activity_u) { CpmSolver::Activity.new("u", "Finish electrical work", 1, [activity_t]) }
-    let(:activity_v) { CpmSolver::Activity.new("v", "Finish grading", 2, [activity_q, activity_r]) }
-    let(:activity_w) { CpmSolver::Activity.new("w", "Pour walks and complete landscaping", 5, [activity_v]) }
-    let(:activity_x) { CpmSolver::Activity.new("x", "Finish", 0, [activity_s, activity_u, activity_w]) }
+    let(:activity_b) { CpmSolver::Activity.new("b", "Excavate and pour footers", 4) }
+    let(:activity_c) { CpmSolver::Activity.new("c", "Pour concrete foundation", 2) }
+    let(:activity_d) { CpmSolver::Activity.new("d", "Erect wooden frame including rough roof", 4) }
+    let(:activity_e) { CpmSolver::Activity.new("e", "Lay brickwork", 6) }
+    let(:activity_f) { CpmSolver::Activity.new("f", "Install basement drains and plumbing", 1) }
+    let(:activity_g) { CpmSolver::Activity.new("g", "Pour basement floor", 2) }
+    let(:activity_h) { CpmSolver::Activity.new("h", "Install rough plumbing", 3) }
+    let(:activity_i) { CpmSolver::Activity.new("i", "Install rough wiring", 2) }
+    let(:activity_j) { CpmSolver::Activity.new("j", "Install heating and ventilating", 4) }
+    let(:activity_k) { CpmSolver::Activity.new("k", "Fasten plaster board and plaster (including drying)", 10) }
+    let(:activity_l) { CpmSolver::Activity.new("l", "Lay finish flooring", 3) }
+    let(:activity_m) { CpmSolver::Activity.new("m", "Install kitchen fixtures", 1) }
+    let(:activity_n) { CpmSolver::Activity.new("n", "Install finish plumbing", 2) }
+    let(:activity_o) { CpmSolver::Activity.new("o", "Finish carpentry", 3) }
+    let(:activity_p) { CpmSolver::Activity.new("p", "Finish roofing and flashing", 2) }
+    let(:activity_q) { CpmSolver::Activity.new("q", "Fasten gutters and downspouts", 1) }
+    let(:activity_r) { CpmSolver::Activity.new("r", "Lay storm drains for rain water", 1) }
+    let(:activity_s) { CpmSolver::Activity.new("s", "Sand and varnish flooring", 2) }
+    let(:activity_t) { CpmSolver::Activity.new("t", "Paint", 3) }
+    let(:activity_u) { CpmSolver::Activity.new("u", "Finish electrical work", 1) }
+    let(:activity_v) { CpmSolver::Activity.new("v", "Finish grading", 2) }
+    let(:activity_w) { CpmSolver::Activity.new("w", "Pour walks and complete landscaping", 5) }
+    let(:activity_x) { CpmSolver::Activity.new("x", "Finish", 0) }
 
-    let(:activities) do
-      [
-        activity_a,
-        activity_b,
-        activity_c,
-        activity_d,
-        activity_e,
-        activity_f,
-        activity_g,
-        activity_h,
-        activity_i,
-        activity_j,
-        activity_k,
-        activity_l,
-        activity_m,
-        activity_n,
-        activity_o,
-        activity_p,
-        activity_q,
-        activity_r,
-        activity_s,
-        activity_t,
-        activity_u,
-        activity_v,
-        activity_w,
-        activity_x,
-      ]
+    before do
+      activity_a.planned_start = start_date
+      program.add_activitity(activity_a)
+      program.add_activitity(activity_b)
+      program.add_activitity(activity_c)
+      program.add_activitity(activity_d)
+      program.add_activitity(activity_e)
+      program.add_activitity(activity_f)
+      program.add_activitity(activity_g)
+      program.add_activitity(activity_h)
+      program.add_activitity(activity_i)
+      program.add_activitity(activity_j)
+      program.add_activitity(activity_k)
+      program.add_activitity(activity_l)
+      program.add_activitity(activity_m)
+      program.add_activitity(activity_n)
+      program.add_activitity(activity_o)
+      program.add_activitity(activity_p)
+      program.add_activitity(activity_q)
+      program.add_activitity(activity_r)
+      program.add_activitity(activity_s)
+      program.add_activitity(activity_t)
+      program.add_activitity(activity_u)
+      program.add_activitity(activity_v)
+      program.add_activitity(activity_w)
+      program.add_activitity(activity_x)
+
+      program.add_predecessors(activity_b, [activity_a])
+      program.add_predecessors(activity_c, [activity_b])
+      program.add_predecessors(activity_d, [activity_c])
+      program.add_predecessors(activity_e, [activity_d])
+      program.add_predecessors(activity_f, [activity_c])
+      program.add_predecessors(activity_g, [activity_f])
+      program.add_predecessors(activity_h, [activity_f])
+      program.add_predecessors(activity_i, [activity_d])
+      program.add_predecessors(activity_j, [activity_d, activity_g])
+      program.add_predecessors(activity_k, [activity_i, activity_j, activity_h])
+      program.add_predecessors(activity_l, [activity_k])
+      program.add_predecessors(activity_m, [activity_l])
+      program.add_predecessors(activity_n, [activity_l])
+      program.add_predecessors(activity_o, [activity_l])
+      program.add_predecessors(activity_p, [activity_o])
+      program.add_predecessors(activity_q, [activity_p])
+      program.add_predecessors(activity_r, [activity_c])
+      program.add_predecessors(activity_s, [activity_o, activity_t])
+      program.add_predecessors(activity_t, [activity_m, activity_n])
+      program.add_predecessors(activity_u, [activity_t])
+      program.add_predecessors(activity_v, [activity_q, activity_r])
+      program.add_predecessors(activity_w, [activity_v])
+      program.add_predecessors(activity_x, [activity_s, activity_u, activity_w])
+
+      program.critical_path_activities
     end
 
-    let(:program) { CpmSolver::Program.new("Schedule", activities) }
+    it "should display summary" do
+      puts program.to_s
+      expect(program.to_s).to_not eq ""
+    end
+
+    it "should generate a directed diagram as pdf file" do
+      program.to_pdf
+      expect(File.exist?("HBR Program.pdf")).to be true
+    end
   end
 end
