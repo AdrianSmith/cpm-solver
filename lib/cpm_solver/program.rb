@@ -94,7 +94,9 @@ module CpmSolver
 
     def to_pdf
       dwg = GraphViz.new(:G, :type => :digraph)
-      dwg.node[:fontname]  = "Helvetica"
+      dwg.node[:fontname] = "Helvetica"
+      dwg.node[:shape] = "box"
+      dwg.node[:style] = "rounded"
 
       @activities.each do |_, activity|
         dwg.add_nodes(activity.to_s)
