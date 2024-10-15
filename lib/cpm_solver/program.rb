@@ -31,7 +31,7 @@ module CpmSolver
       @activities.keys.each.with_index do |activity_ref, index|
         activity = @activities[activity_ref]
         if index == 0
-          activity.early_start = activity.planned_start
+          activity.early_start = 0
         else
           latest_finish_date = activity.predecessors.map(&:early_finish).compact.max
           activity.early_start = latest_finish_date
@@ -65,7 +65,7 @@ module CpmSolver
     end
 
     def to_s
-      labels = %w(Ref Name Duration Slack Critical Dependencies Planned_Start Planned_Finish Early_Start Early_Finish Late_Start Late_Finish)
+      labels = %w(Ref Name Duration Slack Critical Dependencies Early_Start Early_Finish Late_Start Late_Finish)
       contents = []
       @activities.each do |_, activity|
         contents << [
@@ -75,8 +75,6 @@ module CpmSolver
           activity.slack,
           activity.critical,
           activity.predecessors.map { |a| a.reference }.join(" "),
-          activity.planned_start.to_s,
-          activity.planned_finish.to_s,
           activity.early_start.to_s,
           activity.early_finish.to_s,
           activity.late_start.to_s,

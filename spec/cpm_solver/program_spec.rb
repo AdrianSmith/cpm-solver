@@ -6,7 +6,6 @@ RSpec.describe CpmSolver::Program do
   context "with simple program data" do
     # https://www.pmcalculators.com/how-to-calculate-the-critical-path/
     let(:program) { CpmSolver::Program.new("Test") }
-    let(:start_date) { Date.new(2020, 3, 1) }
     let(:activity_Start) { CpmSolver::Activity.new("Start", "Start", 0) }
     let(:activity_A) { CpmSolver::Activity.new("A", "A", 3) }
     let(:activity_B) { CpmSolver::Activity.new("B", "B", 4) }
@@ -19,7 +18,6 @@ RSpec.describe CpmSolver::Program do
     let(:activity_End) { CpmSolver::Activity.new("End", "End", 0) }
 
     before do
-      activity_Start.planned_start = start_date
       program.add_activitity(activity_Start)
       program.add_activitity(activity_A)
       program.add_activitity(activity_B)
@@ -63,8 +61,8 @@ RSpec.describe CpmSolver::Program do
         end
 
         it "should calculate early dates using predecessors" do
-          expect(activity_A.early_start).to eq start_date
-          expect(activity_A.early_finish).to eq start_date + activity_A.duration
+          expect(activity_A.early_start).to eq 0
+          expect(activity_A.early_finish).to eq activity_A.duration
         end
 
         it "should calculate early dates for concurrent predecessors" do
@@ -87,11 +85,11 @@ RSpec.describe CpmSolver::Program do
             expect(activity_End.late_finish).to eq activity_End.early_finish
             expect(activity_End.late_start).to eq activity_End.late_finish - activity_End.duration
 
-            expect(activity_E.late_start).to eq start_date + 9
-            expect(activity_E.late_finish).to eq start_date + 13
+            expect(activity_E.late_start).to eq 9
+            expect(activity_E.late_finish).to eq 13
 
-            expect(activity_C.late_start).to eq start_date + 3
-            expect(activity_C.late_finish).to eq start_date + 9
+            expect(activity_C.late_start).to eq 3
+            expect(activity_C.late_finish).to eq 9
           end
 
           context "after calculation of slack" do
@@ -142,7 +140,6 @@ RSpec.describe CpmSolver::Program do
     let(:activity_x) { CpmSolver::Activity.new("x", "Finish", 0) }
 
     before do
-      activity_a.planned_start = start_date
       program.add_activitity(activity_a)
       program.add_activitity(activity_b)
       program.add_activitity(activity_c)

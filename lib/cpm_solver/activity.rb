@@ -2,10 +2,11 @@ require "date"
 
 module CpmSolver
   class Activity
-    attr_reader :reference, :name, :predecessors, :successors
+    attr_reader :reference, :name
+    attr_reader :predecessors, :successors
     attr_accessor :duration, :slack
-    attr_accessor :planned_start, :planned_finish
-    attr_accessor :early_start, :early_finish, :late_start, :late_finish
+    attr_accessor :early_start, :early_finish
+    attr_accessor :late_start, :late_finish
 
     def initialize(reference, name, duration)
       @reference = reference
