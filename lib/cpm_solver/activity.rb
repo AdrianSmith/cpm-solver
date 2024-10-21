@@ -1,12 +1,12 @@
-require "date"
+# frozen_string_literal: true
+
+require 'date'
 
 module CpmSolver
+  # Modelled as Activity on Node (AON)
   class Activity
-    attr_reader :reference, :name
-    attr_reader :predecessors, :successors
-    attr_accessor :duration, :slack
-    attr_accessor :early_start, :early_finish
-    attr_accessor :late_start, :late_finish
+    attr_reader :reference, :name, :predecessors, :successors
+    attr_accessor :duration, :early_start, :early_finish, :late_start, :late_finish
 
     def initialize(reference, name, duration)
       @reference = reference
@@ -25,19 +25,15 @@ module CpmSolver
     end
 
     def slack
-      if @late_start && @early_start
-        @slack ||= (@late_start - @early_start).to_i
-      else
-        nil
-      end
+      return unless @late_start && @early_start
+
+      @slack ||= (@late_start - @early_start).to_i
     end
 
     def critical
-      if @slack
-        @slack == 0 ? true : false
-      else
-        nil
-      end
+      return unless @slack
+
+      @slack.zero? ? true : false
     end
 
     def to_s

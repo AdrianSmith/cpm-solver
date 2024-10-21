@@ -1,8 +1,9 @@
 # Critical Path Solver
 
-The Critical Path Method is used in many project management applications. 
+The Critical Path Method is used in many project management applications.
 
 ### References:
+- https://www.pmi.org/learning/library/critical-path-method-calculations-scheduling-8040
 - https://hbr.org/1963/09/the-abcs-of-the-critical-path-method
 - https://www.pmcalculators.com/how-to-calculate-the-critical-path/
 - https://www.workamajig.com/blog/critical-path-method
