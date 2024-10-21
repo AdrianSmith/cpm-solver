@@ -1,36 +1,60 @@
 # Critical Path Solver
 
+*(This is a work in progress ATM)*
+
 The Critical Path Method is used in many project management applications.
 
+### Goals
+- Solve the Critical Path Method with Activity on Node
+- Generate a directed diagram as pdf file
+- Generate a summary of the program
+- Return a list of critical activities
+- Support modelling of activities with the following relationships:
+    - Start to Finish
+    - Start to Start
+    - Finish to Start
+    - Finish to Finish
+- Use as the basis for an API
+
 ### References:
-- https://www.pmi.org/learning/library/critical-path-method-calculations-scheduling-8040
 - https://hbr.org/1963/09/the-abcs-of-the-critical-path-method
 - https://www.pmcalculators.com/how-to-calculate-the-critical-path/
-- https://www.workamajig.com/blog/critical-path-method
-- https://thedigitalprojectmanager.com/projects/pm-methodology/critical-path-method/
 
 ### Example Output
 ```text
-+-----------------------------------------------------------------------------------------------------------------------------------------------------+
-|                                                                    Program: Test                                                                    |
-+-------+-------+----------+-------+----------+--------------+---------------+----------------+-------------+--------------+------------+-------------+
-| Ref   | Name  | Duration | Slack | Critical | Dependencies | Planned_Start | Planned_Finish | Early_Start | Early_Finish | Late_Start | Late_Finish |
-+-------+-------+----------+-------+----------+--------------+---------------+----------------+-------------+--------------+------------+-------------+
-| Start | Start |    0     |   0   | true     |              | 2020-03-01    |                | 2020-03-01  | 2020-03-01   | 2020-03-01 | 2020-03-01  |
-| A1000 | A     |    3     |   0   | true     | Start        |               |                | 2020-03-01  | 2020-03-04   | 2020-03-01 | 2020-03-04  |
-| A1010 | B     |    4     |   2   | false    | A1000        |               |                | 2020-03-04  | 2020-03-08   | 2020-03-06 | 2020-03-10  |
-| A1020 | C     |    6     |   0   | true     | A1000        |               |                | 2020-03-04  | 2020-03-10   | 2020-03-04 | 2020-03-10  |
-| A1030 | D     |    6     |   2   | false    | A1010        |               |                | 2020-03-08  | 2020-03-14   | 2020-03-10 | 2020-03-16  |
-| A1040 | E     |    4     |   2   | false    | A1010        |               |                | 2020-03-08  | 2020-03-12   | 2020-03-10 | 2020-03-14  |
-| A1050 | F     |    4     |   0   | true     | A1020        |               |                | 2020-03-10  | 2020-03-14   | 2020-03-10 | 2020-03-14  |
-| A1060 | G     |    6     |   2   | false    | A1030        |               |                | 2020-03-14  | 2020-03-20   | 2020-03-16 | 2020-03-22  |
-| A1070 | H     |    8     |   0   | true     | A1040 A1050  |               |                | 2020-03-14  | 2020-03-22   | 2020-03-14 | 2020-03-22  |
-| End   | End   |    0     |   0   | true     | A1070 A1060  |               |                | 2020-03-22  | 2020-03-22   | 2020-03-22 | 2020-03-22  |
-+-------+-------+----------+-------+----------+--------------+---------------+----------------+-------------+--------------+------------+-------------+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                            Program: HBR Program                                                                             |
++-----+-----------------------------------------------------+----------+-------+----------+--------------+------------+-------------+--------------+------------+-------------+
+| Ref | Name                                                | Duration | Slack | Critical | Predecessors | Successors | Early_Start | Early_Finish | Late_Start | Late_Finish |
++-----+-----------------------------------------------------+----------+-------+----------+--------------+------------+-------------+--------------+------------+-------------+
+| a   | Start                                               |    0     |   0   | true     |              | b          | 0           | 0            | 0          | 0           |
+| b   | Excavate and pour footers                           |    4     |   0   | true     | a            | c          | 0           | 4            | 0          | 4           |
+| c   | Pour concrete foundation                            |    2     |   0   | true     | b            | d f r      | 4           | 6            | 4          | 6           |
+| d   | Erect wooden frame including rough roof             |    4     |   0   | true     | c            | e i j      | 6           | 10           | 6          | 10          |
+| e   | Lay brickwork                                       |    6     |   8   | false    | d            | p          | 10          | 16           | 18         | 24          |
+| f   | Install basement drains and plumbing                |    1     |   1   | false    | c            | g h        | 6           | 7            | 7          | 8           |
+| g   | Pour basement floor                                 |    2     |   1   | false    | f            | j          | 7           | 9            | 8          | 10          |
+| h   | Install rough plumbing                              |    3     |   4   | false    | f            | k          | 7           | 10           | 11         | 14          |
+| i   | Install rough wiring                                |    2     |   2   | false    | d            | k          | 10          | 12           | 12         | 14          |
+| j   | Install heating and ventilating                     |    4     |   0   | true     | d g          | k          | 10          | 14           | 10         | 14          |
+| k   | Fasten plaster board and plaster (including drying) |    10    |   0   | true     | i j h        | l          | 14          | 24           | 14         | 24          |
+| l   | Lay finish flooring                                 |    3     |   0   | true     | k            | m n o      | 24          | 27           | 24         | 27          |
+| m   | Install kitchen fixtures                            |    1     |   1   | false    | l            | t          | 27          | 28           | 28         | 29          |
+| n   | Install finish plumbing                             |    2     |   0   | true     | l            | t          | 27          | 29           | 27         | 29          |
+| o   | Finish carpentry                                    |    3     |   2   | false    | l            | s          | 27          | 30           | 29         | 32          |
+| p   | Finish roofing and flashing                         |    2     |   8   | false    | e            | q          | 16          | 18           | 24         | 26          |
+| q   | Fasten gutters and downspouts                       |    1     |   8   | false    | p            | v          | 18          | 19           | 26         | 27          |
+| r   | Lay storm drains for rain water                     |    1     |  20   | false    | c            | v          | 6           | 7            | 26         | 27          |
+| s   | Sand and varnish flooring                           |    2     |   0   | true     | o t          | x          | 32          | 34           | 32         | 34          |
+| t   | Paint                                               |    3     |   0   | true     | m n          | s u        | 29          | 32           | 29         | 32          |
+| u   | Finish electrical work                              |    1     |   1   | false    | t            | x          | 32          | 33           | 33         | 34          |
+| v   | Finish grading                                      |    2     |   8   | false    | q r          | w          | 19          | 21           | 27         | 29          |
+| w   | Pour walks and complete landscaping                 |    5     |   8   | false    | v            | x          | 21          | 26           | 29         | 34          |
+| x   | Finish                                              |    0     |   0   | true     | s u w        |            | 34          | 34           | 34         | 34          |
++-----+-----------------------------------------------------+----------+-------+----------+--------------+------------+-------------+--------------+------------+-------------+
 ```
 
-![Schedule.pdf](https://github.com/user-attachments/files/17351623/Schedule.pdf)
-
+![HBR Program.pdf](https://github.com/user-attachments/files/17466754/HBR.Program.pdf)
 
 ## Installation
 
