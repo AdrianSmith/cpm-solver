@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'date'
+require "date"
 
 module CpmSolver
   # Modelled as Activity on Node (AON)

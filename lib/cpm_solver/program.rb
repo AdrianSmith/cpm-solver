@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'terminal-table'
-require 'graphviz'
-require 'pry'
+require "terminal-table"
+require "graphviz"
+require "pry"
 
 module CpmSolver
   # Modelled as Directed Acyclic Graph (DAG)
@@ -74,7 +74,6 @@ module CpmSolver
             activity.late_finish = earliest_start
           end
           activity.late_start = activity.late_finish - activity.duration
-          # puts "#{activity_ref} | index: #{index} | late_start: #{activity.late_start} | late_finish: #{activity.late_finish}"
         end
       end
     end
@@ -90,8 +89,8 @@ module CpmSolver
       @activities.each_value do |activity|
         contents << [
           activity.reference, activity.name, activity.duration, activity.slack, activity.critical,
-          activity.predecessors.map(&:reference).join(' '),
-          activity.successors.map(&:reference).join(' '),
+          activity.predecessors.map(&:reference).join(" "),
+          activity.successors.map(&:reference).join(" "),
           activity.early_start.to_s, activity.early_finish.to_s, activity.late_start.to_s, activity.late_finish.to_s
         ]
       end
@@ -104,9 +103,9 @@ module CpmSolver
 
     def to_pdf
       dwg = GraphViz.new(:G, type: :digraph)
-      dwg.node[:fontname] = 'Helvetica'
-      dwg.node[:shape] = 'box'
-      dwg.node[:style] = 'rounded'
+      dwg.node[:fontname] = "Helvetica"
+      dwg.node[:shape] = "box"
+      dwg.node[:style] = "rounded"
 
       build_graphviz(dwg)
       dwg.output(pdf: "#{name}.pdf")
