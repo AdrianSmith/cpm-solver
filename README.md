@@ -54,7 +54,8 @@ The Critical Path Method is used in many project management applications.
 +-----+-----------------------------------------------------+----------+-------+----------+--------------+------------+-------------+--------------+------------+-------------+
 ```
 
-![HBR Program.pdf](https://github.com/user-attachments/files/17466754/HBR.Program.pdf)
+![HBR Program.pdf](https://github.com/user-attachments/files/17474682/HBR.Program.pdf)
+
 
 ## Installation
 
