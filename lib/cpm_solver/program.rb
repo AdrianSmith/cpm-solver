@@ -25,6 +25,17 @@ module CpmSolver
       end
     end
 
+    # Activities with no predecessors
+    def start_activities
+      @activities.select { |_key, activity| activity.predecessors.empty? }
+    end
+
+    # Activities with no successors
+    def end_activities
+      @activities.select { |_key, activity| activity.successors.empty? }
+    end
+
+    # Activities with zero slack
     def critical_path_activities
       forward_pass
       backward_pass
@@ -101,11 +112,10 @@ module CpmSolver
       table
     end
 
-    def to_pdf
+    def to_graph
       dwg = GraphViz.new(:G, type: :digraph)
       dwg.node[:fontname] = "Helvetica"
-      dwg.node[:shape] = "box"
-      dwg.node[:style] = "rounded"
+      dwg.node[:shape] = "record"
 
       build_graphviz(dwg)
       dwg.output(pdf: "#{name}.pdf")
@@ -115,7 +125,14 @@ module CpmSolver
 
     def build_graphviz(dwg)
       @activities.each_value do |activity|
-        dwg.add_nodes(activity.to_s)
+        label = "{{ES: #{activity.early_start} | D: #{activity.duration} | EF: #{activity.early_finish}} | Activity: #{activity.reference}\n#{activity.name}| { LS: #{activity.late_start} | S: #{activity.slack} | LF: #{activity.late_finish} }}"
+
+        if activity.critical
+          dwg.add_nodes(activity.to_s, label:, style: "rounded, filled", fillcolor: "orange1")
+        else
+          dwg.add_nodes(activity.to_s, label:, style: "rounded")
+        end
+
         activity.predecessors.each do |predecessor|
           dwg.add_edges(predecessor.to_s, activity.to_s)
         end

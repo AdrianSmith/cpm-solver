@@ -51,7 +51,7 @@ RSpec.describe CpmSolver::Program do
     end
 
     it "should generate a directed diagram as pdf file" do
-      program.to_pdf
+      program.to_graph
       expect(File.exist?("Test.pdf")).to be true
     end
 
@@ -148,7 +148,7 @@ RSpec.describe CpmSolver::Program do
     end
 
     it "should generate a directed diagram as pdf file" do
-      program.to_pdf
+      program.to_graph
       expect(File.exist?("HBR Production Process.pdf")).to be true
     end
 
@@ -253,7 +253,7 @@ RSpec.describe CpmSolver::Program do
     end
 
     it "should generate a directed diagram as pdf file" do
-      program.to_pdf
+      program.to_graph
       expect(File.exist?("HBR Program.pdf")).to be true
     end
 
