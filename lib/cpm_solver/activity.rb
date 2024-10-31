@@ -17,11 +17,11 @@ module CpmSolver
     end
 
     def add_predecessor(predecessor)
-      @predecessors << predecessor
+      @predecessors << predecessor.reference
     end
 
     def add_successor(successor)
-      @successors << successor
+      @successors << successor.reference
     end
 
     def slack
