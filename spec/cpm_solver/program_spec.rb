@@ -50,14 +50,14 @@ RSpec.describe CpmSolver::Program do
       expect(program.to_s).to_not eq ""
     end
 
-    it "should generate a directed diagram as pdf file" do
-      program.to_graph
-      expect(File.exist?("Test.pdf")).to be true
-    end
-
-    context "after a forward pass" do
+    context "after solving" do
       before do
-        program.forward_pass
+        program.solve
+      end
+
+      it "should generate a directed diagram as pdf file" do
+        program.dependency_diagram
+        expect(File.exist?("Test.pdf")).to be true
       end
 
       it "should calculate early dates using predecessors" do
@@ -76,35 +76,27 @@ RSpec.describe CpmSolver::Program do
         expect(activity_H.early_finish).to eq 21
       end
 
-      context "after a backwards pass" do
-        before do
-          program.backward_pass
-        end
+      it "should calculate late dates" do
+        expect(activity_End.late_finish).to eq activity_End.early_finish
+        expect(activity_End.late_start).to eq activity_End.late_finish - activity_End.duration
 
-        it "should calculate late dates" do
-          expect(activity_End.late_finish).to eq activity_End.early_finish
-          expect(activity_End.late_start).to eq activity_End.late_finish - activity_End.duration
+        expect(activity_E.late_start).to eq 9
+        expect(activity_E.late_finish).to eq 13
 
-          expect(activity_E.late_start).to eq 9
-          expect(activity_E.late_finish).to eq 13
+        expect(activity_C.late_start).to eq 3
+        expect(activity_C.late_finish).to eq 9
+      end
 
-          expect(activity_C.late_start).to eq 3
-          expect(activity_C.late_finish).to eq 9
-        end
-
-        context "after calculation of slack" do
-          it "should identify critical path activities" do
-            expect(program.critical_path_activities.count).to eq 6
-            expect(activity_A.critical).to be true
-            expect(activity_B.critical).to be false
-            expect(activity_C.critical).to be true
-            expect(activity_D.critical).to be false
-            expect(activity_E.critical).to be false
-            expect(activity_F.critical).to be true
-            expect(activity_G.critical).to be false
-            expect(activity_H.critical).to be true
-          end
-        end
+      it "should identify critical path activities" do
+        expect(program.critical_path_activities.count).to eq 6
+        expect(activity_A.critical).to be true
+        expect(activity_B.critical).to be false
+        expect(activity_C.critical).to be true
+        expect(activity_D.critical).to be false
+        expect(activity_E.critical).to be false
+        expect(activity_F.critical).to be true
+        expect(activity_G.critical).to be false
+        expect(activity_H.critical).to be true
       end
     end
   end
@@ -140,7 +132,7 @@ RSpec.describe CpmSolver::Program do
       program.add_predecessors(activity_g, [activity_d, activity_f])
       program.add_predecessors(activity_h, [activity_g])
 
-      program.critical_path_activities
+      program.solve
     end
 
     it "should display summary" do
@@ -148,7 +140,7 @@ RSpec.describe CpmSolver::Program do
     end
 
     it "should generate a directed diagram as pdf file" do
-      program.to_graph
+      program.dependency_diagram
       expect(File.exist?("HBR Production Process.pdf")).to be true
     end
 
@@ -243,17 +235,15 @@ RSpec.describe CpmSolver::Program do
       program.add_predecessors(activity_w, [activity_v])
       program.add_predecessors(activity_x, [activity_s, activity_u, activity_w])
 
-      program.critical_path_activities
+      program.solve
     end
 
     it "should display summary" do
-      summary = program.to_s
-      puts summary
       expect(program.to_s).to_not eq ""
     end
 
     it "should generate a directed diagram as pdf file" do
-      program.to_graph
+      program.dependency_diagram
       expect(File.exist?("HBR Program.pdf")).to be true
     end
 

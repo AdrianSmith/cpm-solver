@@ -1,0 +1,101 @@
+reference,name,duration,predecessors
+1,Clear Site,3,
+2,Survey and Layout,2,1
+3,Soil Testing,2,2
+4,Site Fencing,1,1
+5,Excavation,5,2
+6,Erosion Control Measures,2,5
+7,Foundation Preparation,3,5
+8,Install Footings,4,7
+9,Install Rebar,2,8
+10,Pour Footing Concrete,2,9
+11,Curing Footing Concrete,7,10
+12,Install Foundation Walls,5,11
+13,Install Foundation Waterproofing,3,12
+14,Backfill Foundation,2,13
+15,Gravel Base for Slab,2,14
+16,Install Vapor Barrier,1,15
+17,Pour Basement Floor,1,16
+18,Curing Basement Floor,7,17
+19,First Floor Framing,8,14
+20,Install Floor Sheathing,3,19
+21,Install First Floor Walls,5,20
+22,Install Second Floor Joists,3,21
+23,Second Floor Framing,8,22
+24,Install Roof Trusses,3,23
+25,Install Roof Sheathing,2,24
+26,Roofing Underlayment,1,25
+27,Install Roof Shingles,3,26
+28,Install Gutters,1,27
+29,Install Roof Flashing,1,27
+30,Exterior Sheathing,3,21
+31,Install Windows,5,30
+32,Install Exterior Doors,2,31
+33,House Wrap Installation,2,30
+34,Exterior Siding,6,33
+35,Exterior Painting,3,34
+36,Install Decking,4,34
+37,Install Water Supply Lines,4,23
+38,Install Drainage Pipes,3,37
+39,Install Vent Pipes,2,38
+40,Install Electrical Conduits,3,23
+41,Run Electrical Wiring,5,40
+42,Install Junction Boxes,2,41
+43,Ductwork Installation,5,23
+44,Install HVAC Unit,2,43
+45,Vent Installation,2,44
+46,Install Wall Insulation,3,39
+47,Install Ceiling Insulation,2,46
+48,Hang Drywall,6,47
+49,Drywall Taping and Mudding,5,48
+50,Drywall Sanding,3,49
+51,Prime Interior Walls,2,50
+52,Paint Interior Walls,4,51
+53,Install Baseboards,3,52
+54,Install Window Trim,2,52
+55,Install Interior Doors,3,54
+56,Install Hardwood Flooring,5,55
+57,Install Tile Flooring,3,56
+58,Install Carpet,2,57
+59,Install Kitchen Cabinets,4,56
+60,Install Bathroom Cabinets,2,59
+61,Install Countertops,3,59
+62,Install Light Fixtures,3,42
+63,Install Plumbing Fixtures,2,39
+64,Install HVAC Controls,1,44
+65,Final Interior Paint Touchups,2,53
+66,Install Blinds,2,65
+67,Final Electrical Inspection,1,62
+68,Final Plumbing Inspection,1,63
+69,Final Building Inspection,1,68
+70,Site Cleanup,2,69
+71,Interior Design Consultation,1,1
+72,Install Landscaping,5,70
+73,Install Mailbox,1,70
+74,Install Exterior Lights,2,34
+75,Install Driveway,3,72
+76,Backyard Fencing,4,72
+77,Install Closet Shelving,2,55
+78,Install Bathroom Mirrors,1,60
+79,Final HVAC Inspection,1,64
+80,Power Connection,1,41
+81,Install Water Heater,2,37
+82,Install Appliances,3,61
+83,Install Garage Door,2,32
+84,Patio Installation,3,36
+85,Mailbox Landscaping,2,73
+86,Final Site Grading,2,70
+87,Install Security System,2,62
+88,Install Fire Alarms,1,62
+89,Install Ceiling Fans,2,62
+90,Install Porch Lights,1,74
+91,Garage Flooring,1,83
+92,Interior Final Walkthrough Prep,2,70
+93,Install Kitchen Backsplash,2,59
+94,Install Towel Bars and Hooks,1,55
+95,Install Garage Storage,2,83
+96,Install Interior Stairs Railings,1,21
+97,Waterproof Decking,1,36
+98,Test HVAC System,1,79
+99,Final Punch List,3,92
+100,Final Walkthrough and Handover,1,99
