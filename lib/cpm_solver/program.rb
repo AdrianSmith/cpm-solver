@@ -2,7 +2,6 @@
 
 require "terminal-table"
 require "graphviz"
-require "pry"
 
 module CpmSolver
   # Modelled as Directed Acyclic Graph (DAG)

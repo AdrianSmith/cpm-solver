@@ -13,9 +13,17 @@ RSpec.describe CpmSolver::CsvReader do
     end
 
     it "should generate a directed diagram as pdf file" do
-      puts program.summary_table
       program.dependency_diagram
       expect(File.exist?("house_100.pdf")).to be true
+    end
+
+    it "should have 1 start activity" do
+      expect(program.start_activities.size).to eq(1)
+    end
+
+    it "should have 1 end activity" do
+      puts program.end_activities
+      expect(program.end_activities.size).to eq(1)
     end
 
     it "calculates the correct critical path"

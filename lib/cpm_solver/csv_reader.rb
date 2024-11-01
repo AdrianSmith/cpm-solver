@@ -5,6 +5,7 @@ require_relative "program"
 require_relative "activity"
 
 module CpmSolver
+  # Reads a CSV file and creates a Program object
   class CsvReader
     def self.read(file_path)
       new(file_path).read
@@ -18,18 +19,28 @@ module CpmSolver
 
     def read
       validate_headers
-      CSV.foreach(@file_path, headers: true) do |row|
-        activity = create_activity(row)
-        @activities_map[activity.reference] = activity
-        @program.add_activitity(activity)
-
-        predecessors = row["predecessors"]&.split || []
-        @program.add_predecessors(activity, predecessors.map { |ref| @activities_map[ref] })
-      end
+      create_activities
+      create_predecessors
       @program
     end
 
     private
+
+    def create_activities
+      CSV.foreach(@file_path, headers: true) do |row|
+        activity = create_activity(row)
+        @activities_map[activity.reference] = activity
+        @program.add_activitity(activity)
+      end
+    end
+
+    def create_predecessors
+      CSV.foreach(@file_path, headers: true) do |row|
+        activity = @activities_map[row["reference"]]
+        predecessors = row["predecessors"]&.split(/,\s*/) || []
+        @program.add_predecessors(activity, predecessors.map { |ref| @activities_map[ref] })
+      end
+    end
 
     def create_activity(row)
       duration = row["duration"].to_s.strip
