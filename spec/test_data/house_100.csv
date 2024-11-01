@@ -3,9 +3,9 @@ reference,name,duration,predecessors
 2,Survey and Layout,2,1
 3,Soil Testing,2,2
 4,Site Fencing,1,1
-5,Excavation,5,2
-6,Erosion Control Measures,2,5
-7,Foundation Preparation,3,5
+5,Excavation,5,"2,4"
+6,Erosion Control Measures,2,"5,3"
+7,Foundation Preparation,3,"5,6,71"
 8,Install Footings,4,7
 9,Install Rebar,2,8
 10,Pour Footing Concrete,2,9
@@ -17,7 +17,7 @@ reference,name,duration,predecessors
 16,Install Vapor Barrier,1,15
 17,Pour Basement Floor,1,16
 18,Curing Basement Floor,7,17
-19,First Floor Framing,8,14
+19,First Floor Framing,8,"14,18"
 20,Install Floor Sheathing,3,19
 21,Install First Floor Walls,5,20
 22,Install Second Floor Joists,3,21
@@ -65,16 +65,16 @@ reference,name,duration,predecessors
 64,Install HVAC Controls,1,44
 65,Final Interior Paint Touchups,2,53
 66,Install Blinds,2,65
-67,Final Electrical Inspection,1,62
-68,Final Plumbing Inspection,1,63
-69,Final Building Inspection,1,68
+67,Final Electrical Inspection,1,"62,81,90,98,88,89,87,80"
+68,Final Plumbing Inspection,1,"63,81,28,29"
+69,Final Building Inspection,1,"68,67,95,35"
 70,Site Cleanup,2,69
 71,Interior Design Consultation,1,1
 72,Install Landscaping,5,70
 73,Install Mailbox,1,70
-74,Install Exterior Lights,2,34
+74,Install Exterior Lights,2,"34,84"
 75,Install Driveway,3,72
-76,Backyard Fencing,4,72
+76,Backyard Fencing,4,"72,75,85,86"
 77,Install Closet Shelving,2,55
 78,Install Bathroom Mirrors,1,60
 79,Final HVAC Inspection,1,64
@@ -88,14 +88,14 @@ reference,name,duration,predecessors
 87,Install Security System,2,62
 88,Install Fire Alarms,1,62
 89,Install Ceiling Fans,2,62
-90,Install Porch Lights,1,74
+90,Install Porch Lights,1,"74"
 91,Garage Flooring,1,83
-92,Interior Final Walkthrough Prep,2,70
+92,Interior Final Walkthrough Prep,2,"70,66,94,77,58,93,78,82,97,96"
 93,Install Kitchen Backsplash,2,59
 94,Install Towel Bars and Hooks,1,55
-95,Install Garage Storage,2,83
+95,Install Garage Storage,2,"83,91"
 96,Install Interior Stairs Railings,1,21
 97,Waterproof Decking,1,36
-98,Test HVAC System,1,79
-99,Final Punch List,3,92
+98,Test HVAC System,1,"79,45,80"
+99,Final Punch List,3,"92,76"
 100,Final Walkthrough and Handover,1,99
