@@ -7,9 +7,9 @@ module CpmSolver
   # Modelled as Directed Acyclic Graph (DAG)
   class Program
     attr_accessor :name, :activities
-    attr_reader :status
+    attr_reader :status, :validation_errors
 
-    STATUS = { setup: 0, solved: 1, invalid: 2 }.freeze
+    STATUS = { setup: 0, validated: 1, solved: 2, invalid: 3 }.freeze
 
     def initialize(name)
       @name = name
@@ -42,8 +42,30 @@ module CpmSolver
       @activities.select { |_key, activity| activity.successors.empty? }
     end
 
+    def validate
+      @validation_errors = []
+      @validation_errors << "No start activities found" if start_activities.empty?
+      @validation_errors << "More than one start activity found" if start_activities.size > 1
+      @validation_errors << "No end activities found" if end_activities.empty?
+      @validation_errors << "More than one end activity found" if end_activities.size > 1
+      @validation_errors << "No activities found" if @activities.empty?
+      if @activities.any? { |_key, activity| activity.predecessors.empty? && activity.successors.empty? }
+        @validation_errors << "Some activities have no predecessors or successors"
+      end
+
+      @status = if @validation_errors.empty?
+                  STATUS[:validated]
+                else
+                  STATUS[:invalid]
+                end
+      @validation_errors
+    end
+
     # Calculate the critical path
     def solve
+      validate
+      raise "Program not validated" unless @status == STATUS[:validated]
+
       forward_pass
       backward_pass
       calculate_slack
