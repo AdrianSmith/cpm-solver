@@ -1,6 +1,6 @@
-# frozen_string_literal: true
-
 source "https://rubygems.org"
+
+ruby "3.4.1"
 
 # Specify your gem's dependencies in cpm_solver.gemspec
 gemspec

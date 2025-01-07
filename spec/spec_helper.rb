@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "cpm_solver"
 
 RSpec.configure do |config|
