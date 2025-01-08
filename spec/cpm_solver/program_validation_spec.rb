@@ -32,7 +32,7 @@ RSpec.describe CpmSolver::Program do
         program.add_activitity(activity1)
         program.add_activitity(activity2)
         program.add_activitity(activity3)
-        program.add_predecessors(activity3, [activity1, activity2])
+        program.add_predecessors(activity3, [ activity1, activity2 ])
       end
 
       it "returns error for multiple start activities" do
@@ -47,8 +47,8 @@ RSpec.describe CpmSolver::Program do
         program.add_activitity(activity1)
         program.add_activitity(activity2)
         program.add_activitity(activity3)
-        program.add_predecessors(activity2, [activity1])
-        program.add_predecessors(activity3, [activity1])
+        program.add_predecessors(activity2, [ activity1 ])
+        program.add_predecessors(activity3, [ activity1 ])
       end
 
       it "returns error for multiple end activities" do
@@ -62,8 +62,8 @@ RSpec.describe CpmSolver::Program do
       before do
         program.add_activitity(activity1)
         program.add_activitity(activity2)
-        program.add_predecessors(activity1, [activity2])
-        program.add_predecessors(activity2, [activity1])
+        program.add_predecessors(activity1, [ activity2 ])
+        program.add_predecessors(activity2, [ activity1 ])
       end
 
       it "returns error for no start activities" do
@@ -77,8 +77,8 @@ RSpec.describe CpmSolver::Program do
       before do
         program.add_activitity(activity1)
         program.add_activitity(activity2)
-        program.add_predecessors(activity1, [activity2])
-        program.add_predecessors(activity2, [activity1])
+        program.add_predecessors(activity1, [ activity2 ])
+        program.add_predecessors(activity2, [ activity1 ])
       end
 
       it "returns error for no end activities" do
@@ -93,8 +93,8 @@ RSpec.describe CpmSolver::Program do
         program.add_activitity(activity1)
         program.add_activitity(activity2)
         program.add_activitity(activity3)
-        program.add_predecessors(activity2, [activity1])
-        program.add_predecessors(activity3, [activity2])
+        program.add_predecessors(activity2, [ activity1 ])
+        program.add_predecessors(activity3, [ activity2 ])
       end
 
       it "returns no errors and sets status to validated" do

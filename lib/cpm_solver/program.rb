@@ -54,10 +54,10 @@ module CpmSolver
       end
 
       @status = if @validation_errors.empty?
-                  STATUS[:validated]
-                else
-                  STATUS[:invalid]
-                end
+        STATUS[:validated]
+      else
+        STATUS[:invalid]
+      end
       @validation_errors
     end
 

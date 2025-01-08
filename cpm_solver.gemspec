@@ -5,8 +5,8 @@ require_relative "lib/cpm_solver/version"
 Gem::Specification.new do |spec|
   spec.name = "cpm_solver"
   spec.version = CpmSolver::VERSION
-  spec.authors = ["Adrian Smith"]
-  spec.email = ["adrianlloydsmith@gmail.com"]
+  spec.authors = [ "Adrian Smith" ]
+  spec.email = [ "adrianlloydsmith@gmail.com" ]
 
   spec.summary = "TODO: Write a short summary, because RubyGems requires one."
   spec.description = "TODO: Write a longer description or delete this line."
@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   end
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
+  spec.require_paths = [ "lib" ]
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
