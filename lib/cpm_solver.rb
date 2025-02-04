@@ -1,9 +1,11 @@
-require "cpm_solver/version"
-require "cpm_solver/program"
-require "cpm_solver/activity"
+require_relative "cpm_solver/version"
+require_relative "cpm_solver/core/activity"
+require_relative "cpm_solver/core/program"
+require_relative "cpm_solver/io/csv_reader"
+require_relative "cpm_solver/solvers/solver"
+require_relative "cpm_solver/solvers/bellman_ford"
+require_relative "cpm_solver/visualization/graph_builder"
 
-require "graphviz"
-
-# CPM Solver
 module CpmSolver
+  class Error < StandardError; end
 end

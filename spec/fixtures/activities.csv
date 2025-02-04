@@ -1,0 +1,4 @@
+Reference,Name,Duration,Predecessors
+A,Task A,5,
+B,Task B,3,
+C,Task C,4,"A,B"

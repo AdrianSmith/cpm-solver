@@ -1,5 +1,3 @@
-
-
 require "csv"
 require_relative "program"
 require_relative "activity"
