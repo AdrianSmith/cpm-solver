@@ -17,3 +17,5 @@ gem "rubocop", "~> 1.21"
 
 gem "ruby-graphviz"
 gem "terminal-table"
+
+gem 'get_process_mem'
