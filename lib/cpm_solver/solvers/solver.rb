@@ -11,6 +11,7 @@ module CpmSolver
         calculate_early_times
         calculate_late_times
         calculate_slack
+        program.instance_variable_set(:@status, CpmSolver::Core::Program::STATUS[:solved])
       end
 
       protected
@@ -38,9 +39,10 @@ module CpmSolver
 
       def validate_program
         program.validate
-        unless program.status == CpmSolver::Core::Program::STATUS[:validated]
-          raise "Program must be valid before solving. Errors: #{program.validation_errors.join(', ')}"
-        end
+        return if program.status == CpmSolver::Core::Program::STATUS[:validated]
+
+        error_message = program.validation_errors.join("\n")
+        raise "Program validation failed:\n#{error_message}"
       end
     end
   end

@@ -11,10 +11,11 @@ module CpmSolver
       def read
         activities = {}
         CSV.foreach(@file_path, headers: true) do |row|
-          reference = row["Reference"]
-          name = row["Name"]
-          duration = row["Duration"].to_i
-          predecessors = row["Predecessors"]&.split(",")&.map(&:strip) || []
+          # Map CSV columns to activity attributes
+          reference = row["reference"]
+          name = row["name"]
+          duration = row["duration"].to_i
+          predecessors = row["predecessors"]&.split(/,\s*/)&.map(&:strip) || []
 
           activity = Core::Activity.new(reference, name, duration)
           activities[reference] = { activity:, predecessors: }
@@ -23,6 +24,7 @@ module CpmSolver
         # Link predecessors
         activities.each do |_reference, data|
           data[:predecessors].each do |predecessor_ref|
+            next if predecessor_ref.nil? || predecessor_ref.empty?
             predecessor = activities[predecessor_ref]
             raise "Predecessor #{predecessor_ref} not found" unless predecessor
 

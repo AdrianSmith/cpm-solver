@@ -5,6 +5,7 @@ require_relative "cpm_solver/io/csv_reader"
 require_relative "cpm_solver/solvers/solver"
 require_relative "cpm_solver/solvers/bellman_ford"
 require_relative "cpm_solver/solvers/dijkstra"
+require_relative "cpm_solver/solvers/floyd_warshall"
 require_relative "cpm_solver/visualization/graph_builder"
 
 module CpmSolver

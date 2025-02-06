@@ -1,5 +1,6 @@
 require "terminal-table"
 require_relative "../visualization/graph_builder"
+require "fileutils"
 
 module CpmSolver
   module Core
@@ -122,8 +123,12 @@ module CpmSolver
 
       # Graphviz diagram of the program
       def dependency_diagram
+        # Create tmp directory if it doesn't exist
+        tmp_dir = "tmp/diagrams"
+        FileUtils.mkdir_p(tmp_dir)
+
         graph = Visualization::GraphBuilder.new(self).build
-        graph.output(pdf: "#{name}.pdf")
+        graph.output(pdf: File.join(tmp_dir, "#{name}.pdf"))
       end
     end
   end

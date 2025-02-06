@@ -1,66 +1,130 @@
 # Ruby implementation of Floyd Warshall Algorithm
-class FloydWarshall
-  INF = Float::INFINITY
+module CpmSolver
+  module Solvers
+    class FloydWarshall < Solver
+      INF = Float::INFINITY
 
-  def initialize(graph)
-    @vertex_count = graph.length
-    @graph = graph
-  end
+      protected
 
-  def solve
-    # Initialize distance matrix as a deep copy of the input graph
-    dist = @graph.map(&:dup)
+      def calculate_early_times
+        graph = initialize_early_times_graph
+        distances = solve_floyd_warshall(graph)
+        start_vertex = find_start_vertex
 
-    # Add vertices one by one to the set of intermediate vertices
-    @vertex_count.times do |k|
-      # Pick all vertices as source one by one
-      @vertex_count.times do |i|
-        # Pick all vertices as destination for the above picked source
-        @vertex_count.times do |j|
-          # If vertex k is on the shortest path from i to j,
-          # then update the value of dist[i][j]
-          dist[i][j] = [dist[i][j], dist[i][k] + dist[k][j]].min
+        program.activities.each_value do |activity|
+          vertex_index = activity_to_vertex_index(activity)
+          early_time = distances[start_vertex][vertex_index]
+          activity.early_start = early_time == -INF ? 0 : early_time
+          activity.early_finish = activity.early_start + activity.duration
         end
       end
-    end
 
-    dist
-  end
+      def calculate_late_times
+        return unless program.activities.values.all? { |a| a.early_finish }
 
-  def print_solution(dist)
-    puts "Following matrix shows the shortest distances between every pair of vertices:"
-    dist.each do |row|
-      row.each do |element|
-        if element == INF
-          print "INF".rjust(7) + " "
-        else
-          print element.to_s.rjust(7) + " "
+        project_end = program.activities.values.map(&:early_finish).max
+        graph = initialize_late_times_graph
+        distances = solve_floyd_warshall(graph)
+        end_vertex = find_end_vertex
+
+        program.activities.each_value do |activity|
+          vertex_index = activity_to_vertex_index(activity)
+          path_length = distances[vertex_index][end_vertex]
+          activity.late_finish = project_end - (path_length == -INF ? 0 : path_length)
+          activity.late_start = activity.late_finish - activity.duration
         end
       end
-      puts
+
+      private
+
+      def solve_floyd_warshall(graph)
+        vertex_count = program.activities.size
+        dist = Array.new(vertex_count) { |i| Array.new(vertex_count) { |j| graph[i][j] } }
+
+        vertex_count.times do |k|
+          vertex_count.times do |i|
+            vertex_count.times do |j|
+              if dist[i][k] != -INF && dist[k][j] != -INF
+                new_dist = dist[i][k] + dist[k][j]
+                if new_dist > dist[i][j] || dist[i][j] == -INF
+                  dist[i][j] = new_dist
+                end
+              end
+            end
+          end
+        end
+
+        dist
+      end
+
+      def initialize_early_times_graph
+        size = program.activities.size
+        graph = Array.new(size) { Array.new(size, -INF) }
+
+        # Initialize diagonal
+        size.times { |i| graph[i][i] = 0 }
+
+        # Add edges from predecessors to activities
+        program.activities.each_value do |activity|
+          to_idx = activity_to_vertex_index(activity)
+
+          activity.predecessors.each do |pred_ref|
+            pred = program.activities[pred_ref]
+            from_idx = activity_to_vertex_index(pred)
+            graph[from_idx][to_idx] = pred.duration
+          end
+        end
+
+        # Find start vertices (those with no predecessors)
+        start_vertices = program.activities.values
+          .select { |a| a.predecessors.empty? }
+          .map { |a| activity_to_vertex_index(a) }
+
+        # If we have multiple start vertices, connect them all to a single one
+        if start_vertices.size > 1
+          main_start = start_vertices.first
+          start_vertices[1..-1].each do |vertex|
+            # Connect other start vertices to the main start vertex
+            graph[main_start][vertex] = 0
+          end
+        end
+
+        graph
+      end
+
+      def initialize_late_times_graph
+        size = program.activities.size
+        graph = Array.new(size) { Array.new(size, -INF) }
+
+        # Initialize diagonal
+        size.times { |i| graph[i][i] = 0 }
+
+        # Add edges from activities to successors (reversed from early times)
+        program.activities.each_value do |activity|
+          from_idx = activity_to_vertex_index(activity)
+
+          activity.successors.each do |succ_ref|
+            succ = program.activities[succ_ref]
+            to_idx = activity_to_vertex_index(succ)
+            # For late times, we use the successor's duration
+            graph[from_idx][to_idx] = succ.duration
+          end
+        end
+
+        graph
+      end
+
+      def activity_to_vertex_index(activity)
+        program.activities.keys.index(activity.reference)
+      end
+
+      def find_start_vertex
+        program.activities.values.find_index { |a| a.predecessors.empty? }
+      end
+
+      def find_end_vertex
+        program.activities.values.find_index { |a| a.successors.empty? }
+      end
     end
   end
-end
-
-# Example usage:
-if $PROGRAM_NAME == __FILE__
-  # Example graph representation:
-  #                10
-  #           (0)------->(3)
-  #            |         /|\
-  #          5 |          |
-  #            |          | 1
-  #           \|/         |
-  #           (1)------->(2)
-  #                3
-  graph = [
-    [0, 5, FloydWarshall::INF, 10],
-    [FloydWarshall::INF, 0, 3, FloydWarshall::INF],
-    [FloydWarshall::INF, FloydWarshall::INF, 0, 1],
-    [FloydWarshall::INF, FloydWarshall::INF, FloydWarshall::INF, 0]
-  ]
-
-  floyd = FloydWarshall.new(graph)
-  solution = floyd.solve
-  floyd.print_solution(solution)
 end
