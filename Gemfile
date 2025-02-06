@@ -7,6 +7,7 @@ gemspec
 
 gem "pry"
 gem "csv"
+gem "ostruct"
 
 gem "rake", "~> 13.0"
 
