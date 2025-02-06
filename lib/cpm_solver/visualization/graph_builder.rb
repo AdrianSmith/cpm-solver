@@ -1,4 +1,5 @@
 require "graphviz"
+require "set"
 
 module CpmSolver
   module Visualization
@@ -12,6 +13,9 @@ module CpmSolver
         dwg.node[:fontname] = "Helvetica"
         dwg.node[:shape] = "record"
 
+        # Track added edges to prevent duplicates
+        added_edges = Set.new
+
         @program.activities.each_value do |activity|
           label = node_label(activity)
 
@@ -22,7 +26,12 @@ module CpmSolver
           end
 
           activity.predecessors.each do |predecessor|
-            dwg.add_edges(@program.activities[predecessor].to_s, activity.to_s)
+            # For directed graphs, edge direction matters, so don't sort
+            edge_key = "#{predecessor}->#{activity}"
+            unless added_edges.include?(edge_key)
+              dwg.add_edges(@program.activities[predecessor].to_s, activity.to_s)
+              added_edges.add(edge_key)
+            end
           end
         end
 
