@@ -10,7 +10,7 @@ module CpmSolver
 
       def read
         activities = {}
-        CSV.foreach(@file_path, headers: true) do |row|
+        CSV.foreach(@file_path, headers: true, header_converters: :downcase) do |row|
           # Map CSV columns to activity attributes
           reference = row["reference"]
           name = row["name"]
