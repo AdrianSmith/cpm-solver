@@ -1,11 +1,13 @@
 require "spec_helper"
 require "terminal-table"
+require "cpm_solver/visualization/graph_builder"
+require "fileutils"
 
 RSpec.describe "Solver Performance Tests", :performance do
   ITERATIONS = 5
   ACTIVITY_COUNT = 250
   MAX_PREDECESSORS = 5
-  LAYERS = 10  # Define number of layers for better control
+  LAYERS = 20  # Define number of layers for better control
 
   def generate_large_program
     program = CpmSolver::Core::Program.new("Large Performance Test Program")
@@ -69,20 +71,32 @@ RSpec.describe "Solver Performance Tests", :performance do
     program
   end
 
-  private
-
-  def create_network_layers(activities)
-    # Divide remaining activities into layers
-    layer_count = Math.sqrt(activities.size).ceil
-    activities_per_layer = (activities.size / layer_count.to_f).ceil
-
-    activities.each_slice(activities_per_layer).to_a
-  end
-
   describe "Large Scale Performance Comparison" do
     let(:program) { generate_large_program }
+    let(:tmp_dir) { "tmp/diagrams" }
+    let(:initial_diagram_path) { File.join(tmp_dir, "performance_test_network_initial.pdf") }
+    let(:solved_diagram_path) { File.join(tmp_dir, "performance_test_network_solved.pdf") }
 
     before(:each) do
+      FileUtils.mkdir_p(tmp_dir)
+
+      # Generate initial network diagram
+      puts "\nGenerating initial network diagram..."
+      graph_builder = CpmSolver::Visualization::GraphBuilder.new(program)
+      graph = graph_builder.build
+      graph.output(pdf: initial_diagram_path)
+      puts "Initial network diagram saved to: #{initial_diagram_path}"
+
+      # Solve with Bellman-Ford and generate solved diagram
+      puts "\nSolving with Bellman-Ford and generating solved diagram..."
+      bellman_ford = CpmSolver::Solvers::BellmanFord.new(program)
+      bellman_ford.solve
+
+      solved_graph_builder = CpmSolver::Visualization::GraphBuilder.new(program)
+      solved_graph = solved_graph_builder.build
+      solved_graph.output(pdf: solved_diagram_path)
+      puts "Solved network diagram saved to: #{solved_diagram_path}"
+
       summary_table = Terminal::Table.new do |t|
         t.title = "Test Configuration"
         t.headings = ['Parameter', 'Value']
@@ -105,6 +119,28 @@ RSpec.describe "Solver Performance Tests", :performance do
         ]
       end
       puts "\n#{network_table}"
+
+      # Update network visualization table to include both diagrams
+      diagram_table = Terminal::Table.new do |t|
+        t.title = "Network Visualization"
+        t.headings = ['Property', 'Value']
+        t.rows = [
+          ['Initial Diagram', initial_diagram_path],
+          ['Solved Diagram', solved_diagram_path],
+          ['Network Density', "#{program.activities.values.sum { |a| a.predecessors.size }} edges"],
+          ['Critical Path Length', "#{program.critical_path_activities.size} activities"],
+          ['Layout Algorithm', 'GraphViz dot'],
+          ['Output Format', 'PDF']
+        ]
+      end
+      puts "\n#{diagram_table}"
+    end
+
+    after(:each) do
+      # Optionally clean up diagrams
+      # [initial_diagram_path, solved_diagram_path].each do |path|
+      #   File.delete(path) if File.exist?(path)
+      # end
     end
 
     it "compares solver performance with large dataset" do
@@ -192,5 +228,15 @@ RSpec.describe "Solver Performance Tests", :performance do
         expect(times.all? { |t| t > 0 }).to be true
       end
     end
+  end
+
+  private
+
+  def create_network_layers(activities)
+    # Divide remaining activities into layers
+    layer_count = Math.sqrt(activities.size).ceil
+    activities_per_layer = (activities.size / layer_count.to_f).ceil
+
+    activities.each_slice(activities_per_layer).to_a
   end
 end
