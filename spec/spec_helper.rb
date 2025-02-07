@@ -2,6 +2,7 @@ require "cpm_solver"
 require "cpm_solver/solvers/bellman_ford"
 require "cpm_solver/solvers/floyd_warshall"
 require "cpm_solver/solvers/topological"
+require "cpm_solver/solvers/dijkstra"
 require "pry"
 
 RSpec.configure do |config|

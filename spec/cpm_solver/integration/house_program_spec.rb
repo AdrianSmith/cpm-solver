@@ -138,6 +138,10 @@ RSpec.describe "House Construction Program Integration", :integration do
     include_examples "solver behavior", CpmSolver::Solvers::Topological
   end
 
+  context "with Dijkstra solver" do
+    include_examples "solver behavior", CpmSolver::Solvers::Dijkstra
+  end
+
   after(:all) do
     if @verbose
       if Dir.exist?(@tmp_dir)

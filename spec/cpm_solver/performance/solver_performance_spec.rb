@@ -147,13 +147,15 @@ RSpec.describe "Solver Performance Tests", :performance do
       results = {
         'Bellman-Ford' => [],
         'Floyd-Warshall' => [],
-        'Topological' => []
+        'Topological' => [],
+        'Dijkstra' => []
       }
 
       solvers = {
         'Bellman-Ford' => CpmSolver::Solvers::BellmanFord,
         'Floyd-Warshall' => CpmSolver::Solvers::FloydWarshall,
-        'Topological' => CpmSolver::Solvers::Topological
+        'Topological' => CpmSolver::Solvers::Topological,
+        'Dijkstra' => CpmSolver::Solvers::Dijkstra
       }
 
       # Run each solver multiple times
