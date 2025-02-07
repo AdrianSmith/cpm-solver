@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe "Solver Performance Tests" do
+RSpec.describe "Solver Performance Tests", :performance do
   # Define as constants instead of let
   ITERATIONS = 5
   ACTIVITY_COUNT = 200

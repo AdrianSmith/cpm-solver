@@ -1,21 +1,44 @@
 require "spec_helper"
 
-RSpec.describe "House Construction Program Integration" do
+RSpec.describe "House Construction Program Integration", :integration do
   let(:csv_file) { "spec/test_data/house_100.csv" }
   let(:program_name) { "House Construction" }
   let(:tmp_dir) { "tmp/diagrams" }
-  # Check for KEEP_PDFS environment variable
-  let(:keep_pdfs) { ENV['KEEP_PDFS'] == 'true' }
+
+  before(:all) do
+    @verbose = ENV['VERBOSE'] == 'true'
+    @tmp_dir = "tmp/diagrams"
+    # Create output directory for logs
+    @output_dir = "tmp/output"
+    FileUtils.mkdir_p(@output_dir) if @verbose
+
+    # Clean up existing output files
+    if @verbose
+      Dir.glob(File.join(@output_dir, "*_output.txt")).each do |file|
+        File.delete(file)
+      end
+    end
+  end
+
+  def log(message)
+    if @verbose && @output_file && !@output_file.closed?
+      @output_file.puts(message)
+      @output_file.flush  # Ensure content is written immediately
+    end
+  end
 
   shared_examples "solver behavior" do |solver_class|
     let(:program) { CpmSolver::Core::Program.new(program_name) }
     let(:reader) { CpmSolver::IO::CsvReader.new(csv_file) }
     let(:solver_name) { solver_class.name.split("::").last }
-    let(:pdf_filename) { File.join(tmp_dir, "#{program_name} - #{solver_name}.pdf") }
+    let(:pdf_filename) { File.join(@tmp_dir, "#{program_name} - #{solver_name}.pdf") }
+    let(:output_filename) { File.join(@output_dir, "#{solver_name}_output.txt") }
 
-    before do
-      # Create tmp directory
-      FileUtils.mkdir_p(tmp_dir)
+    before(:each) do
+      if @verbose
+        @output_file = File.open(output_filename, 'w')
+        log "\n=== #{solver_name} Solver Output ===\n"
+      end
 
       # Verify CSV file exists
       unless File.exist?(csv_file)
@@ -50,38 +73,42 @@ RSpec.describe "House Construction Program Integration" do
       # Solve using specified solver
       @solver = solver_class.new(program)
       @solver.solve
+
+      # Write initial program summary only once
+      if @verbose
+        log "\nProgram Summary:"
+        log program.summary_table
+      end
     end
 
-    after do
-      unless keep_pdfs
+    after(:each) do
+      if @output_file && !@output_file.closed?
+        @output_file.close
+      end
+
+      unless @verbose
         # Clean up PDF files after each test
         File.delete(pdf_filename) if File.exist?(pdf_filename)
-
-        # Optionally remove the directory if it's empty
-        FileUtils.rm_r(tmp_dir) if Dir.empty?(tmp_dir)
-        FileUtils.rm_r("tmp") if Dir.exist?("tmp") && Dir.empty?("tmp")
       end
     end
 
     it "generates a dependency diagram" do
-      # Override the default PDF filename with solver-specific one
       allow(program).to receive(:name).and_return("#{program_name} - #{solver_name}")
-
       program.dependency_diagram
       expect(File.exist?(pdf_filename)).to be true
-
-      puts "\nGenerated PDF diagram: #{pdf_filename}"
-      puts "PDF files will be #{keep_pdfs ? 'retained' : 'deleted'} after tests"
+      log "\nGenerated PDF diagram: #{pdf_filename}" if @verbose
     end
 
     it "identifies critical activities" do
       critical_activities = program.critical_path_activities
       expect(critical_activities).not_to be_empty
 
-      # Print critical path for debugging
-      puts "\nCritical Path Activities for #{solver_class}:"
-      critical_activities.each do |_ref, activity|
-        puts "#{activity.reference} - #{activity.name} (Duration: #{activity.duration})"
+      if @verbose
+        log "\nCritical Path Activities:"
+        critical_activities.each_value do |activity|
+          log "#{activity.reference} - #{activity.name} (Duration: #{activity.duration})"
+          @output_file.flush
+        end
       end
     end
 
@@ -95,8 +122,7 @@ RSpec.describe "House Construction Program Integration" do
     end
 
     it "displays program summary" do
-      puts "\nProgram Summary for #{solver_class}:"
-      puts program.summary_table
+      expect(program.summary_table).not_to be_nil
     end
   end
 
@@ -106,5 +132,25 @@ RSpec.describe "House Construction Program Integration" do
 
   context "with Floyd-Warshall solver" do
     include_examples "solver behavior", CpmSolver::Solvers::FloydWarshall
+  end
+
+  after(:all) do
+    if @verbose
+      if Dir.exist?(@tmp_dir)
+        pdf_files = Dir.glob(File.join(@tmp_dir, "*.pdf"))
+        if pdf_files.any?
+          puts "\nGenerated PDF files:"
+          pdf_files.each { |file| puts "- #{file}" }
+        end
+      end
+
+      if Dir.exist?(@output_dir)
+        output_files = Dir.glob(File.join(@output_dir, "*.txt"))
+        if output_files.any?
+          puts "\nGenerated output files:"
+          output_files.each { |file| puts "- #{file}" }
+        end
+      end
+    end
   end
 end
