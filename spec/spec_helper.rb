@@ -1,4 +1,5 @@
 require "cpm_solver"
+require "pry"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -10,4 +11,7 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  # Exclude integration and performance tests by default
+  config.filter_run_excluding integration: true, performance: true
 end

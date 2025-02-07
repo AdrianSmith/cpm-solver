@@ -7,6 +7,7 @@ gemspec
 
 gem "pry"
 gem "csv"
+gem "ostruct"
 
 gem "rake", "~> 13.0"
 
@@ -16,3 +17,5 @@ gem "rubocop", "~> 1.21"
 
 gem "ruby-graphviz"
 gem "terminal-table"
+
+gem 'get_process_mem'
