@@ -1,9 +1,9 @@
 require "spec_helper"
+require "terminal-table"
 
 RSpec.describe "Solver Performance Tests", :performance do
-  # Define as constants instead of let
   ITERATIONS = 5
-  ACTIVITY_COUNT = 200
+  ACTIVITY_COUNT = 250
   MAX_PREDECESSORS = 5
   LAYERS = 10  # Define number of layers for better control
 
@@ -83,37 +83,49 @@ RSpec.describe "Solver Performance Tests", :performance do
     let(:program) { generate_large_program }
 
     before(:each) do
-      puts "\nGenerating performance test data..."
-      puts "Activities: #{ACTIVITY_COUNT}"
-      puts "Layers: #{LAYERS}"
-      puts "Max predecessors per activity: #{MAX_PREDECESSORS}"
-      puts "Test iterations: #{ITERATIONS}"
+      summary_table = Terminal::Table.new do |t|
+        t.title = "Test Configuration"
+        t.headings = ['Parameter', 'Value']
+        t.rows = [
+          ['Activities', ACTIVITY_COUNT],
+          ['Layers', LAYERS],
+          ['Max predecessors', MAX_PREDECESSORS],
+          ['Test iterations', ITERATIONS]
+        ]
+      end
+      puts "\n#{summary_table}"
 
-      # Print network statistics
-      puts "\nNetwork structure:"
-      puts "Start activity: #{program.start_activities.keys.first}"
-      puts "End activity: #{program.end_activities.keys.first}"
-      puts "Total activities: #{program.activities.size}"
+      network_table = Terminal::Table.new do |t|
+        t.title = "Network Structure"
+        t.headings = ['Network Property', 'Value']
+        t.rows = [
+          ['Start activity', program.start_activities.keys.first],
+          ['End activity', program.end_activities.keys.first],
+          ['Total activities', program.activities.size]
+        ]
+      end
+      puts "\n#{network_table}"
     end
 
     it "compares solver performance with large dataset" do
       results = {
         'Bellman-Ford' => [],
-        'Floyd-Warshall' => []
+        'Floyd-Warshall' => [],
+        'Topological' => []
       }
 
       solvers = {
         'Bellman-Ford' => CpmSolver::Solvers::BellmanFord,
-        'Floyd-Warshall' => CpmSolver::Solvers::FloydWarshall
+        'Floyd-Warshall' => CpmSolver::Solvers::FloydWarshall,
+        'Topological' => CpmSolver::Solvers::Topological
       }
 
       # Run each solver multiple times
       solvers.each do |name, solver_class|
         puts "\nTesting #{name} solver..."
+        iteration_rows = []
 
         ITERATIONS.times do |i|
-          print "  Iteration #{i + 1}/#{ITERATIONS}..."
-
           program_copy = Marshal.load(Marshal.dump(program))
           solver = solver_class.new(program_copy)
 
@@ -123,24 +135,56 @@ RSpec.describe "Solver Performance Tests", :performance do
 
           execution_time = end_time - start_time
           results[name] << execution_time
-          puts " #{(execution_time * 1000).round(2)}ms"
+          iteration_rows << [i + 1, (execution_time * 1000).round(2)]
         end
+
+        iteration_table = Terminal::Table.new do |t|
+          t.title = "#{name} Solver Iterations"
+          t.headings = ['Iteration', 'Time (ms)']
+          t.rows = iteration_rows
+        end
+        puts iteration_table
       end
 
-      # Display results
-      puts "\nPerformance Results (#{ACTIVITY_COUNT} activities, #{ITERATIONS} iterations):"
-      puts "-" * 65
-      puts "| #{'Solver'.ljust(15)} | #{'Avg (ms)'.ljust(12)} | #{'Min (ms)'.ljust(12)} | #{'Max (ms)'.ljust(12)} |"
-      puts "-" * 65
-
-      results.each do |name, times|
+      # Display performance results
+      performance_rows = results.map do |name, times|
         avg_time = (times.sum / times.length) * 1000
         min_time = times.min * 1000
         max_time = times.max * 1000
 
-        puts "| #{name.ljust(15)} | #{avg_time.round(2).to_s.ljust(12)} | #{min_time.round(2).to_s.ljust(12)} | #{max_time.round(2).to_s.ljust(12)} |"
+        [
+          name,
+          avg_time.round(2),
+          min_time.round(2),
+          max_time.round(2)
+        ]
       end
-      puts "-" * 65
+
+      performance_table = Terminal::Table.new do |t|
+        t.title = "Performance Results (#{ACTIVITY_COUNT} activities, #{ITERATIONS} iterations)"
+        t.headings = ['Solver', 'Avg (ms)', 'Min (ms)', 'Max (ms)']
+        t.rows = performance_rows
+      end
+      puts "\n#{performance_table}"
+
+      # Comparison metrics
+      baseline_solver = 'Bellman-Ford'
+      baseline_avg = results[baseline_solver].sum / results[baseline_solver].length
+
+      comparison_rows = results.each_with_object([]) do |(name, times), rows|
+        next if name == baseline_solver
+        avg_time = times.sum / times.length
+        relative_speed = baseline_avg / avg_time
+        speed_text = "#{relative_speed.round(2)}x #{relative_speed > 1 ? 'faster' : 'slower'}"
+        rows << [name, speed_text]
+      end
+
+      comparison_table = Terminal::Table.new do |t|
+        t.title = "Performance Comparison (relative to #{baseline_solver})"
+        t.headings = ['Solver', 'Relative Speed']
+        t.rows = comparison_rows
+      end
+      puts "\n#{comparison_table}"
 
       # Basic assertions
       results.each do |name, times|
