@@ -22,6 +22,33 @@ The Critical Path Method is used in many project management applications.
 - [x] Bellman-Ford Algorithm
 - [x] Floyd-Warshall Algorithm
 
+### Current Performance
+- Topological Sorting: O(V + E)
+- Dijkstra's Algorithm: O((V + E) log V)
+- Bellman-Ford Algorithm: O(VE)
+- Floyd-Warshall Algorithm: O(V^3)
+
++----------------------------------------------------+
+| Performance Results (250 activities, 5 iterations) |
++----------------+-----------+-----------+-----------+
+| Solver         | Avg (ms)  | Min (ms)  | Max (ms)  |
++----------------+-----------+-----------+-----------+
+| Bellman-Ford   | 0.39      | 0.37      | 0.42      |
+| Floyd-Warshall | 2548.04   | 2489.87   | 2653.97   |
+| Topological    | 0.61      | 0.58      | 0.67      |
+| Dijkstra       | 5.34      | 5.14      | 5.69      |
++----------------+-----------+-----------+-----------+
+
++---------------------------------------------------+
+| Performance Comparison (relative to Bellman-Ford) |
++-------------------------+-------------------------+
+| Solver                  | Relative Speed          |
++-------------------------+-------------------------+
+| Floyd-Warshall          | 0.0x slower             |
+| Topological             | 0.64x slower            |
+| Dijkstra                | 0.07x slower            |
++-------------------------+-------------------------+
+
 ### References:
 - https://hbr.org/1963/09/the-abcs-of-the-critical-path-method
 - https://www.pmcalculators.com/how-to-calculate-the-critical-path/
