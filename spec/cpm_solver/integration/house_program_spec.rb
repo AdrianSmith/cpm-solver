@@ -126,8 +126,8 @@ RSpec.describe "House Construction Program Integration", :integration do
     end
   end
 
-  context "with Bellman-Ford solver" do
-    include_examples "solver behavior", CpmSolver::Solvers::BellmanFord
+  context "with Critical-Path solver" do
+    include_examples "solver behavior", CpmSolver::Solvers::CriticalPath
   end
 
   context "with Floyd-Warshall solver" do

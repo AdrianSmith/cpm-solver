@@ -2,7 +2,7 @@ require_relative "solver"
 
 module CpmSolver
   module Solvers
-    class BellmanFord < Solver
+    class CriticalPath < Solver
       protected
 
       # Calculate early start and finish times using forward pass

@@ -1,5 +1,5 @@
 require "cpm_solver"
-require "cpm_solver/solvers/bellman_ford"
+require "cpm_solver/solvers/critical_path"
 require "cpm_solver/solvers/floyd_warshall"
 require "cpm_solver/solvers/topological"
 require "cpm_solver/solvers/dijkstra"

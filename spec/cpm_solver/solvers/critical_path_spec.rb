@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe CpmSolver::Solvers::BellmanFord do
+RSpec.describe CpmSolver::Solvers::CriticalPath do
   let(:program) { CpmSolver::Core::Program.new("Test Program") }
   let(:solver) { described_class.new(program) }
   let(:activity_a) { CpmSolver::Core::Activity.new("A", "Task A", 5) }

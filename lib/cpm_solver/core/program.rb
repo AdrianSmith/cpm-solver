@@ -67,11 +67,11 @@ module CpmSolver
       end
 
       # Calculate the critical path
-      def solve(algorithm = :bellman_ford)
+      def solve(algorithm = :critical_path)
         validate
         raise "Program not validated" unless @status == STATUS[:validated]
 
-        solver = CpmSolver::Solvers::BellmanFord.new(self)
+        solver = CpmSolver::Solvers::CriticalPath.new(self)
         solver.solve
         @status = STATUS[:solved]
       end

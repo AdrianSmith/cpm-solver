@@ -87,10 +87,10 @@ RSpec.describe "Solver Performance Tests", :performance do
       graph.output(pdf: initial_diagram_path)
       puts "Initial network diagram saved to: #{initial_diagram_path}"
 
-      # Solve with Bellman-Ford and generate solved diagram
-      puts "\nSolving with Bellman-Ford and generating solved diagram..."
-      bellman_ford = CpmSolver::Solvers::BellmanFord.new(program)
-      bellman_ford.solve
+      # Solve with Critical Path Method and generate solved diagram
+      puts "\nSolving with Critical Path Method and generating solved diagram..."
+      critical_path = CpmSolver::Solvers::CriticalPath.new(program)
+      critical_path.solve
 
       solved_graph_builder = CpmSolver::Visualization::GraphBuilder.new(program)
       solved_graph = solved_graph_builder.build
@@ -145,14 +145,14 @@ RSpec.describe "Solver Performance Tests", :performance do
 
     it "compares solver performance with large dataset" do
       results = {
-        'Bellman-Ford' => [],
+        'Critical-Path' => [],
         'Floyd-Warshall' => [],
         'Topological' => [],
         'Dijkstra' => []
       }
 
       solvers = {
-        'Bellman-Ford' => CpmSolver::Solvers::BellmanFord,
+        'Critical-Path' => CpmSolver::Solvers::CriticalPath,
         'Floyd-Warshall' => CpmSolver::Solvers::FloydWarshall,
         'Topological' => CpmSolver::Solvers::Topological,
         'Dijkstra' => CpmSolver::Solvers::Dijkstra
@@ -206,7 +206,7 @@ RSpec.describe "Solver Performance Tests", :performance do
       puts "\n#{performance_table}"
 
       # Comparison metrics
-      baseline_solver = 'Bellman-Ford'
+      baseline_solver = 'Critical-Path'
       baseline_avg = results[baseline_solver].sum / results[baseline_solver].length
 
       comparison_rows = results.each_with_object([]) do |(name, times), rows|
