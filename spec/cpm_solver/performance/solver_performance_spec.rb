@@ -146,6 +146,7 @@ RSpec.describe "Solver Performance Tests", :performance do
     it "compares solver performance with large dataset" do
       results = {
         'Critical-Path' => [],
+        'Bellman-Ford' => [],
         'Floyd-Warshall' => [],
         'Topological' => [],
         'Dijkstra' => []
@@ -153,6 +154,7 @@ RSpec.describe "Solver Performance Tests", :performance do
 
       solvers = {
         'Critical-Path' => CpmSolver::Solvers::CriticalPath,
+        'Bellman-Ford' => CpmSolver::Solvers::BellmanFord,
         'Floyd-Warshall' => CpmSolver::Solvers::FloydWarshall,
         'Topological' => CpmSolver::Solvers::Topological,
         'Dijkstra' => CpmSolver::Solvers::Dijkstra
