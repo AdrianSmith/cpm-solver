@@ -136,13 +136,6 @@ RSpec.describe "Solver Performance Tests", :performance do
       puts "\n#{diagram_table}"
     end
 
-    after(:each) do
-      # Optionally clean up diagrams
-      # [initial_diagram_path, solved_diagram_path].each do |path|
-      #   File.delete(path) if File.exist?(path)
-      # end
-    end
-
     it "compares solver performance with large dataset" do
       results = {
         'Critical-Path' => [],
