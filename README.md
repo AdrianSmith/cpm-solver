@@ -23,6 +23,7 @@ The Critical Path Method is used in many project management applications.
 - [x] Floyd-Warshall Algorithm
 
 ### Current Performance
+- Critical-Path Method: O(V + E)
 - Topological Sorting: O(V + E)
 - Dijkstra's Algorithm: O((V + E) log V)
 - Bellman-Ford Algorithm: O(VE)
@@ -34,10 +35,11 @@ The Critical Path Method is used in many project management applications.
 +----------------+-----------+-----------+-----------+
 | Solver         | Avg (ms)  | Min (ms)  | Max (ms)  |
 +----------------+-----------+-----------+-----------+
-| Critical-Path  | 0.36      | 0.35      | 0.38      |
-| Floyd-Warshall | 2475.6    | 2445.79   | 2512.36   |
-| Topological    | 0.6       | 0.56      | 0.65      |
-| Dijkstra       | 4.34      | 4.22      | 4.42      |
+| Critical-Path  | 0.61      | 0.38      | 1.37      |
+| Bellman-Ford   | 84.2      | 83.38     | 85.39     |
+| Floyd-Warshall | 2566.75   | 2536.2    | 2640.7    |
+| Topological    | 0.65      | 0.63      | 0.7       |
+| Dijkstra       | 6.34      | 6.18      | 6.46      |
 +----------------+-----------+-----------+-----------+
 
 +----------------------------------------------------+
@@ -45,9 +47,10 @@ The Critical Path Method is used in many project management applications.
 +--------------------------+-------------------------+
 | Solver                   | Relative Speed          |
 +--------------------------+-------------------------+
-| Floyd-Warshall           | 0.0x slower             |
-| Topological              | 0.6x slower             |
-| Dijkstra                 | 0.08x slower            |
+| Bellman-Ford             | 138.31x slower          |
+| Floyd-Warshall           | 4216.08x slower         |
+| Topological              | 1.07x slower            |
+| Dijkstra                 | 10.41x slower           |
 +--------------------------+-------------------------+
 ```
 

@@ -207,8 +207,17 @@ RSpec.describe "Solver Performance Tests", :performance do
       comparison_rows = results.each_with_object([]) do |(name, times), rows|
         next if name == baseline_solver
         avg_time = times.sum / times.length
-        relative_speed = baseline_avg / avg_time
-        speed_text = "#{relative_speed.round(2)}x #{relative_speed > 1 ? 'faster' : 'slower'}"
+
+        # Calculate relative speed: if baseline is slower, we want >1x faster
+        # if baseline is faster, we want <1x slower
+        relative_speed = avg_time / baseline_avg
+
+        speed_text = if relative_speed > 1
+          "#{relative_speed.round(2)}x slower"
+        else
+          "#{(1 / relative_speed).round(2)}x faster"
+        end
+
         rows << [name, speed_text]
       end
 
