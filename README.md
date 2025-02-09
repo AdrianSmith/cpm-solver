@@ -28,6 +28,7 @@ The Critical Path Method is used in many project management applications.
 - Bellman-Ford Algorithm: O(VE)
 - Floyd-Warshall Algorithm: O(V^3)
 
+```
 +----------------------------------------------------+
 | Performance Results (250 activities, 5 iterations) |
 +----------------+-----------+-----------+-----------+
@@ -48,6 +49,7 @@ The Critical Path Method is used in many project management applications.
 | Topological              | 0.6x slower             |
 | Dijkstra                 | 0.08x slower            |
 +--------------------------+-------------------------+
+```
 
 ### References:
 - https://hbr.org/1963/09/the-abcs-of-the-critical-path-method
