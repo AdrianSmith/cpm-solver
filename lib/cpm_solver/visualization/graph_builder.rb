@@ -15,9 +15,9 @@ module CpmSolver
           g.node[:shape] = "record"
           g.edge[:fontname] = "Helvetica"
           g.edge[:fontsize] = 10
-          g[:rankdir] = "LR"
-          g[:splines] = "ortho"
-          g[:concentrate] = "true"
+          g[:rankdir] = "TB"  # Top to Bottom layout
+          g[:splines] = "ortho"  # Orthogonal lines
+          g[:concentrate] = "true"  # Concentrate edges
         end
 
         # Track added edges to prevent duplicates
@@ -26,17 +26,39 @@ module CpmSolver
         @program.activities.each_value do |activity|
           label = node_label(activity)
 
+          # Style critical path nodes differently
           if activity.critical
-            dwg.add_nodes(activity.to_s, label:, style: "rounded, filled", fillcolor: "orange1")
+            dwg.add_nodes(activity.to_s,
+              label: label,
+              style: "rounded,filled",
+              fillcolor: "orange1",
+              penwidth: "2.0"
+            )
           else
-            dwg.add_nodes(activity.to_s, label:, style: "rounded")
+            dwg.add_nodes(activity.to_s,
+              label: label,
+              style: "rounded"
+            )
           end
 
           activity.predecessors.each do |predecessor|
             # For directed graphs, edge direction matters, so don't sort
             edge_key = "#{predecessor}->#{activity}"
             unless added_edges.include?(edge_key)
-              dwg.add_edges(@program.activities[predecessor].to_s, activity.to_s)
+              # Style critical path edges differently
+              if activity.critical && @program.activities[predecessor].critical
+                dwg.add_edges(
+                  @program.activities[predecessor].to_s,
+                  activity.to_s,
+                  color: "red",
+                  penwidth: "2.0"
+                )
+              else
+                dwg.add_edges(
+                  @program.activities[predecessor].to_s,
+                  activity.to_s
+                )
+              end
               added_edges.add(edge_key)
             end
           end

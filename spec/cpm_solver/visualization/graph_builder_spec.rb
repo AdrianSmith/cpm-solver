@@ -29,10 +29,11 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
   describe "#build_dependency", :dependency_output do
     let(:graph_builder) { described_class.new(program) }
     let(:graph) { graph_builder.build_dependency }
-    let(:tmp_dir) { "tmp/gantt" }
+    let(:tmp_dir) { "tmp/diagrams/visualization" }
     let(:pdf_output_path) { File.join(tmp_dir, "network_diagram.pdf") }
 
     before(:each) do
+      FileUtils.rm_rf(tmp_dir) unless RSpec.current_example.metadata[:save_files]
       FileUtils.mkdir_p(tmp_dir)
     end
 
@@ -40,11 +41,6 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
       begin
         # Ensure the directory exists
         FileUtils.mkdir_p(File.dirname(pdf_output_path))
-
-        # Set GraphViz options for better PDF output
-        graph[:rankdir] = 'LR'  # Left to right layout
-        graph[:splines] = 'ortho'  # Orthogonal lines
-        graph[:concentrate] = 'true'  # Concentrate edges
 
         # Generate PDF with specific options
         graph.output(
@@ -63,9 +59,10 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
       end
     end
 
-    it "creates a directed graph and generates PDF output", :output_pdf do
+    it "creates a directed graph with top-to-bottom layout", :output_pdf do
       expect(graph.type).to eq("digraph")
-      generate_pdf_output(graph) if RSpec.configuration.filter.rules[:output_pdf]
+      expect(graph[:rankdir].to_s).to eq("TB")  # Verify Top to Bottom layout
+      generate_pdf_output(graph) if RSpec.current_example.metadata[:output_pdf]
     end
 
     it "creates nodes for all activities" do
@@ -89,12 +86,35 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
       expect(label).to include("A")
       expect(label).to include("Task A")
     end
+
+    it "highlights critical path nodes and edges", :output_pdf do
+      # Make some activities critical for testing
+      activity_a.critical = true
+      activity_b.critical = true
+
+      graph = graph_builder.build_dependency
+
+      # Check critical nodes
+      node_a = graph.get_node(activity_a.to_s)
+      expect(node_a[:style].to_s).to include("filled")
+      expect(node_a[:fillcolor].to_s).to eq("orange1")
+      expect(node_a[:penwidth].to_s).to eq("2.0")
+
+      # Check critical edges
+      edges = graph.each_edge.select do |edge|
+        edge.node_one == activity_a.to_s && edge.node_two == activity_b.to_s
+      end
+      expect(edges.first[:color].to_s).to eq("red")
+      expect(edges.first[:penwidth].to_s).to eq("2.0")
+
+      generate_pdf_output(graph) if RSpec.current_example.metadata[:output_pdf]
+    end
   end
 
   describe "#build_gantt", :gantt_output do
     let(:graph_builder) { described_class.new(program) }
     let(:gantt) { graph_builder.build_gantt }
-    let(:tmp_dir) { "tmp/gantt" }
+    let(:tmp_dir) { "tmp/gantt/visualization" }
     let(:html_output_path) { File.join(tmp_dir, "gantt_chart.html") }
 
     before(:each) do

@@ -3,32 +3,28 @@ require "spec_helper"
 RSpec.describe "House Construction Program Integration", :integration do
   let(:csv_file) { "spec/test_data/house_100.csv" }
   let(:program_name) { "House Construction" }
-  let(:tmp_dir) { 'tmp' }
+  let(:tmp_dir) { "tmp/diagrams/house" }
+  let(:output_dir) { "tmp/output/house" }
   let(:pdf_filename) { File.join(tmp_dir, "#{program_name}.pdf") }
 
   before(:all) do
-    @verbose = ENV['VERBOSE'] == 'true'
-    @tmp_dir = "tmp/diagrams"
-    # Create output directory for logs
-    @output_dir = "tmp/output"
-    FileUtils.mkdir_p(@output_dir) if @verbose
+    @tmp_dir = "tmp/diagrams/house"
+    @output_dir = "tmp/output/house"
 
-    # Clean up existing output files
-    if @verbose
-      Dir.glob(File.join(@output_dir, "*_output.txt")).each do |file|
-        File.delete(file)
-      end
-    end
-  end
+    # Clean up any existing files
+    FileUtils.rm_rf(@tmp_dir)
+    FileUtils.rm_rf(@output_dir)
 
-  before(:each) do
-    FileUtils.mkdir_p(tmp_dir)
+    # Create fresh directories
+    FileUtils.mkdir_p(@tmp_dir)
+    FileUtils.mkdir_p(@output_dir)
   end
 
   def log(message)
-    if @verbose && @output_file && !@output_file.closed?
+    return unless RSpec.current_example.metadata[:output]
+    if @output_file && !@output_file.closed?
       @output_file.puts(message)
-      @output_file.flush  # Ensure content is written immediately
+      @output_file.flush
     end
   end
 
@@ -39,7 +35,10 @@ RSpec.describe "House Construction Program Integration", :integration do
     let(:output_filename) { File.join(@output_dir, "#{solver_name}_output.txt") }
 
     before(:each) do
-      if @verbose
+      FileUtils.mkdir_p(@output_dir)
+      FileUtils.mkdir_p(tmp_dir)
+
+      if RSpec.current_example.metadata[:output]
         @output_file = File.open(output_filename, 'w')
         log "\n=== #{solver_name} Solver Output ===\n"
       end
@@ -49,19 +48,12 @@ RSpec.describe "House Construction Program Integration", :integration do
         raise "CSV file not found: #{csv_file}"
       end
 
-      # Read activities from CSV
+      # Read and set up activities
       activities = reader.read
-
-      if activities.empty?
-        raise "No activities were read from the CSV file"
-      end
-
-      # Add activities to program
       activities.each do |_ref, activity|
         program.add_activity(activity)
       end
 
-      # Add predecessors
       activities.each do |_ref, activity|
         predecessors = activity.predecessors.map { |ref| activities[ref] }.compact
         program.add_predecessors(activity, predecessors) unless predecessors.empty?
@@ -74,39 +66,81 @@ RSpec.describe "House Construction Program Integration", :integration do
         program.validation_errors.each { |error| puts "- #{error}" }
       end
 
-      # Solve using specified solver
+      # Use the provided solver class to solve the program
       @solver = solver_class.new(program)
       @solver.solve
 
       # Write initial program summary only once
-      if @verbose
+      if RSpec.current_example.metadata[:output]
         log "\nProgram Summary:"
         log program.summary_table
       end
     end
 
     after(:each) do
-      if @output_file && !@output_file.closed?
-        @output_file.close
-      end
-
-      unless ENV['KEEP_PDFS'] == 'true'
-        FileUtils.rm_rf(tmp_dir)
-      end
+      @output_file&.close
     end
 
-    it "generates a dependency diagram" do
-      program.solve
-      program.dependency_diagram
-      expect(File.exist?(pdf_filename)).to be true
-      log "\nGenerated PDF diagram: #{pdf_filename}" if @verbose
+    # Only run the dependency diagram test for the Critical Path solver
+    if solver_class == CpmSolver::Solvers::CriticalPath
+      it "generates a dependency diagram" do
+        # Verify start and end activities
+        start_activities = program.start_activities
+        end_activities = program.end_activities
+
+        expect(start_activities).not_to be_empty
+        expect(end_activities).not_to be_empty
+
+        # Verify critical path connects start to end
+        critical_activities = program.critical_path_activities
+        expect(critical_activities).not_to be_empty
+
+        # Check if start activity is in critical path
+        start_critical = critical_activities.values.any? { |a| start_activities.values.include?(a) }
+        expect(start_critical).to be(true), "Critical path should include a start activity"
+
+        # Check if end activity is in critical path
+        end_critical = critical_activities.values.any? { |a| end_activities.values.include?(a) }
+        expect(end_critical).to be(true), "Critical path should include an end activity"
+
+        # Generate the dependency diagram
+        graph_builder = CpmSolver::Visualization::GraphBuilder.new(program)
+        graph = graph_builder.build_dependency
+
+        # Ensure directory exists
+        FileUtils.mkdir_p(File.dirname(pdf_filename))
+
+        # Generate the PDF
+        graph.output(pdf: pdf_filename)
+
+        expect(File.exist?(pdf_filename)).to be true
+
+        if RSpec.current_example.metadata[:output]
+          log "\nProgram Structure:"
+          log "  Start activities: #{start_activities.keys.join(', ')}"
+          log "  End activities: #{end_activities.keys.join(', ')}"
+          log "\nCritical Path Analysis:"
+          log "  Total activities: #{program.activities.size}"
+          log "  Critical activities: #{critical_activities.size}"
+          log "\nCritical Path:"
+          critical_activities.each do |ref, activity|
+            predecessors = activity.predecessors.select { |p| program.activities[p]&.critical }
+            log "  #{ref} - #{activity.name}"
+            log "    Duration: #{activity.duration}"
+            log "    ES: #{activity.early_start}, EF: #{activity.early_finish}"
+            log "    LS: #{activity.late_start}, LF: #{activity.late_finish}"
+            log "    Critical predecessors: #{predecessors.join(', ')}"
+          end
+          log "\nGenerated PDF diagram: #{pdf_filename}"
+        end
+      end
     end
 
     it "identifies critical activities" do
       critical_activities = program.critical_path_activities
       expect(critical_activities).not_to be_empty
 
-      if @verbose
+      if RSpec.current_example.metadata[:output]
         log "\nCritical Path Activities:"
         critical_activities.each_value do |activity|
           log "#{activity.reference} - #{activity.name} (Duration: #{activity.duration})"
@@ -146,22 +180,27 @@ RSpec.describe "House Construction Program Integration", :integration do
   end
 
   after(:all) do
-    if @verbose
-      if Dir.exist?(@tmp_dir)
-        pdf_files = Dir.glob(File.join(@tmp_dir, "*.pdf"))
-        if pdf_files.any?
-          puts "\nGenerated PDF files:"
-          pdf_files.each { |file| puts "- #{file}" }
-        end
+    # Show generated files if they exist
+    if Dir.exist?(@tmp_dir)
+      pdf_files = Dir.glob(File.join(@tmp_dir, "*.pdf"))
+      if pdf_files.any?
+        puts "\nGenerated PDF files:"
+        pdf_files.each { |file| puts "- #{file}" }
       end
+    end
 
-      if Dir.exist?(@output_dir)
-        output_files = Dir.glob(File.join(@output_dir, "*.txt"))
-        if output_files.any?
-          puts "\nGenerated output files:"
-          output_files.each { |file| puts "- #{file}" }
-        end
+    if Dir.exist?(@output_dir)
+      output_files = Dir.glob(File.join(@output_dir, "*.txt"))
+      if output_files.any?
+        puts "\nGenerated output files:"
+        output_files.each { |file| puts "- #{file}" }
       end
+    end
+
+    # Only clean up if :save_files tag is NOT present
+    unless RSpec.configuration.filter.rules[:save_files]
+      FileUtils.rm_rf(@tmp_dir)
+      FileUtils.rm_rf(@output_dir)
     end
   end
 end

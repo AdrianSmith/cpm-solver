@@ -73,7 +73,8 @@ RSpec.describe "Solver Performance Tests", :performance do
 
   describe "Large Scale Performance Comparison" do
     let(:program) { generate_large_program }
-    let(:tmp_dir) { "tmp/diagrams" }
+    let(:tmp_dir) { "tmp/diagrams/performance" }
+    let(:output_dir) { "tmp/output/performance" }
     let(:initial_diagram_path) { File.join(tmp_dir, "performance_test_network_initial.pdf") }
     let(:solved_diagram_path) { File.join(tmp_dir, "performance_test_network_solved.pdf") }
 
