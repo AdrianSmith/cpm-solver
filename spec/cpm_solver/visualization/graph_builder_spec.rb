@@ -2,6 +2,7 @@ require "spec_helper"
 require "cpm_solver/visualization/graph_builder"
 require "cpm_solver/core/program"
 require "cpm_solver/core/activity"
+require "fileutils"
 
 RSpec.describe CpmSolver::Visualization::GraphBuilder do
   let(:program) { CpmSolver::Core::Program.new("Test Program") }
@@ -25,12 +26,47 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
     program.solve
   end
 
-  describe "#build" do
+  describe "#build", :network_output do
     let(:graph_builder) { described_class.new(program) }
     let(:graph) { graph_builder.build }
+    let(:tmp_dir) { "tmp/gantt" }
+    let(:pdf_output_path) { File.join(tmp_dir, "network_diagram.pdf") }
 
-    it "creates a directed graph" do
+    before(:each) do
+      FileUtils.mkdir_p(tmp_dir)
+    end
+
+    def generate_pdf_output(graph)
+      begin
+        # Ensure the directory exists
+        FileUtils.mkdir_p(File.dirname(pdf_output_path))
+
+        # Set GraphViz options for better PDF output
+        graph[:rankdir] = 'LR'  # Left to right layout
+        graph[:splines] = 'ortho'  # Orthogonal lines
+        graph[:concentrate] = 'true'  # Concentrate edges
+
+        # Generate PDF with specific options
+        graph.output(
+          pdf: pdf_output_path,
+          use: 'dot',  # Use dot layout algorithm
+          nothugly: true  # Produce better-looking output
+        )
+
+        # Verify the file was created
+        raise "PDF file was not generated at #{pdf_output_path}" unless File.exist?(pdf_output_path)
+
+        puts "\nNetwork diagram PDF file generated successfully at: #{pdf_output_path}"
+      rescue StandardError => e
+        puts "\nError generating PDF: #{e.message}"
+        puts e.backtrace
+        raise "Failed to generate PDF: #{e.message}"
+      end
+    end
+
+    it "creates a directed graph and generates PDF output", :output_pdf do
       expect(graph.type).to eq("digraph")
+      generate_pdf_output(graph) if RSpec.configuration.filter.rules[:output_pdf]
     end
 
     it "creates nodes for all activities" do
@@ -53,6 +89,118 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
       expect(label).to include("LF: 5")
       expect(label).to include("A")
       expect(label).to include("Task A")
+    end
+  end
+
+  describe "#build_gantt", :gantt_output do
+    let(:graph_builder) { described_class.new(program) }
+    let(:gantt) { graph_builder.build_gantt }
+    let(:tmp_dir) { "tmp/gantt" }
+    let(:html_output_path) { File.join(tmp_dir, "gantt_chart.html") }
+
+    before(:each) do
+      FileUtils.mkdir_p(tmp_dir)
+    end
+
+    def generate_html_output(gantt_content)
+      # Remove the mermaid markdown markers if present
+      cleaned_content = gantt_content.gsub(/```mermaid\n/, '').gsub(/```\n?$/, '')
+
+      html_content = <<~HTML
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>#{program.name} - Gantt Chart</title>
+          <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+          <script>
+            mermaid.initialize({
+              startOnLoad: true,
+              theme: 'default',
+              gantt: {
+                titleTopMargin: 25,
+                barHeight: 20,
+                barGap: 4,
+                topPadding: 50,
+                sidePadding: 50
+              }
+            });
+          </script>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+              background-color: #f5f5f5;
+            }
+            .container {
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: white;
+              border-radius: 8px;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            h1 {
+              color: #333;
+              text-align: center;
+              margin-bottom: 30px;
+            }
+            .mermaid {
+              background: white;
+              padding: 20px;
+              border-radius: 5px;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>#{program.name} - Gantt Chart</h1>
+            <div class="mermaid">
+              #{cleaned_content}
+            </div>
+          </div>
+        </body>
+        </html>
+      HTML
+
+      File.write(html_output_path, html_content)
+      puts "\nGantt chart HTML file generated at: #{html_output_path}"
+    end
+
+    it "generates valid mermaid gantt chart syntax" do
+      expect(gantt).to include("```mermaid")
+      expect(gantt).to include("gantt")
+      expect(gantt).to include("dateFormat X")
+      expect(gantt).to include("axisFormat %d")
+      expect(gantt).to include("title Test Program - Gantt Chart")
+
+      # Generate HTML output if the :output_html tag is present
+      if RSpec.configuration.filter.rules[:output_html]
+        generate_html_output(gantt)
+      end
+    end
+
+    it "includes all activities with their durations and start times" do
+      expect(gantt).to include("section A")
+      expect(gantt).to include("Task A")
+      expect(gantt).to include("section B")
+      expect(gantt).to include("Task B")
+      expect(gantt).to include("section C")
+      expect(gantt).to include("Task C")
+      expect(gantt).to include("section D")
+      expect(gantt).to include("Task D")
+    end
+
+    it "marks critical activities" do
+      critical_path = program.activities.values.select(&:critical)
+      critical_path.each do |activity|
+        expect(gantt).to match(/#{activity.name} :crit,/)
+      end
+    end
+
+    it "includes dependencies between activities" do
+      expect(gantt).to include("After A")
+      expect(gantt).to include("After B, C")
     end
   end
 end

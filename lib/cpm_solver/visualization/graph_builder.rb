@@ -9,9 +9,16 @@ module CpmSolver
       end
 
       def build
-        dwg = GraphViz.new(:G, type: :digraph)
-        dwg.node[:fontname] = "Helvetica"
-        dwg.node[:shape] = "record"
+        # Initialize GraphViz with specific settings for better PDF output
+        dwg = GraphViz.new(:G, type: :digraph) do |g|
+          g.node[:fontname] = "Helvetica"
+          g.node[:shape] = "record"
+          g.edge[:fontname] = "Helvetica"
+          g.edge[:fontsize] = 10
+          g[:rankdir] = "LR"
+          g[:splines] = "ortho"
+          g[:concentrate] = "true"
+        end
 
         # Track added edges to prevent duplicates
         added_edges = Set.new
@@ -36,6 +43,36 @@ module CpmSolver
         end
 
         dwg
+      end
+
+      def build_gantt
+        activities = @program.activities.values.sort_by(&:early_start)
+
+        lines = ["```mermaid",
+                "gantt",
+                "    dateFormat X",
+                "    axisFormat %d",
+                "    title #{@program.name} - Gantt Chart",
+                ""]
+
+        activities.each do |activity|
+          duration = activity.duration || 0
+          es = activity.early_start || 0
+          critical = activity.critical ? "crit, " : ""
+
+          # Add proper indentation and section for each activity
+          lines << "    section #{activity.reference}"
+          lines << "    #{activity.name} :#{critical}#{es}, #{duration}d"
+
+          # Add dependencies with proper indentation
+          unless activity.predecessors.empty?
+            deps = activity.predecessors.join(", ")
+            lines << "    After #{deps} :#{es}, #{duration}d"
+          end
+        end
+
+        lines << "```"
+        lines.join("\n")
       end
 
       private
