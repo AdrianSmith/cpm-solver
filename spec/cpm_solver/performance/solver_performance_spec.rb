@@ -83,7 +83,7 @@ RSpec.describe "Solver Performance Tests", :performance do
       # Generate initial network diagram
       puts "\nGenerating initial network diagram..."
       graph_builder = CpmSolver::Visualization::GraphBuilder.new(program)
-      graph = graph_builder.build
+      graph = graph_builder.build_dependency
       graph.output(pdf: initial_diagram_path)
       puts "Initial network diagram saved to: #{initial_diagram_path}"
 
@@ -93,7 +93,7 @@ RSpec.describe "Solver Performance Tests", :performance do
       critical_path.solve
 
       solved_graph_builder = CpmSolver::Visualization::GraphBuilder.new(program)
-      solved_graph = solved_graph_builder.build
+      solved_graph = solved_graph_builder.build_dependency
       solved_graph.output(pdf: solved_diagram_path)
       puts "Solved network diagram saved to: #{solved_diagram_path}"
 

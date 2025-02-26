@@ -123,12 +123,10 @@ module CpmSolver
 
       # Graphviz diagram of the program
       def dependency_diagram
-        # Create tmp directory if it doesn't exist
-        tmp_dir = "tmp/diagrams"
-        FileUtils.mkdir_p(tmp_dir)
-
-        graph = Visualization::GraphBuilder.new(self).build
-        graph.output(pdf: File.join(tmp_dir, "#{name}.pdf"))
+        FileUtils.mkdir_p('tmp')
+        graph = Visualization::GraphBuilder.new(self).build_dependency
+        graph.output(pdf: File.join('tmp', "#{name}.pdf"))
+        graph
       end
     end
   end

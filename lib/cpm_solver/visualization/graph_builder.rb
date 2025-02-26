@@ -8,7 +8,7 @@ module CpmSolver
         @program = program
       end
 
-      def build
+      def build_dependency
         # Initialize GraphViz with specific settings for better PDF output
         dwg = GraphViz.new(:G, type: :digraph) do |g|
           g.node[:fontname] = "Helvetica"

@@ -26,9 +26,9 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
     program.solve
   end
 
-  describe "#build", :network_output do
+  describe "#build_dependency", :dependency_output do
     let(:graph_builder) { described_class.new(program) }
-    let(:graph) { graph_builder.build }
+    let(:graph) { graph_builder.build_dependency }
     let(:tmp_dir) { "tmp/gantt" }
     let(:pdf_output_path) { File.join(tmp_dir, "network_diagram.pdf") }
 
@@ -49,8 +49,7 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
         # Generate PDF with specific options
         graph.output(
           pdf: pdf_output_path,
-          use: 'dot',  # Use dot layout algorithm
-          nothugly: true  # Produce better-looking output
+          use: 'dot'  # Use dot layout algorithm
         )
 
         # Verify the file was created

@@ -3,7 +3,8 @@ require "spec_helper"
 RSpec.describe "House Construction Program Integration", :integration do
   let(:csv_file) { "spec/test_data/house_100.csv" }
   let(:program_name) { "House Construction" }
-  let(:tmp_dir) { "tmp/diagrams" }
+  let(:tmp_dir) { 'tmp' }
+  let(:pdf_filename) { File.join(tmp_dir, "#{program_name}.pdf") }
 
   before(:all) do
     @verbose = ENV['VERBOSE'] == 'true'
@@ -20,6 +21,10 @@ RSpec.describe "House Construction Program Integration", :integration do
     end
   end
 
+  before(:each) do
+    FileUtils.mkdir_p(tmp_dir)
+  end
+
   def log(message)
     if @verbose && @output_file && !@output_file.closed?
       @output_file.puts(message)
@@ -31,7 +36,6 @@ RSpec.describe "House Construction Program Integration", :integration do
     let(:program) { CpmSolver::Core::Program.new(program_name) }
     let(:reader) { CpmSolver::IO::CsvReader.new(csv_file) }
     let(:solver_name) { solver_class.name.split("::").last }
-    let(:pdf_filename) { File.join(@tmp_dir, "#{program_name} - #{solver_name}.pdf") }
     let(:output_filename) { File.join(@output_dir, "#{solver_name}_output.txt") }
 
     before(:each) do
@@ -86,14 +90,13 @@ RSpec.describe "House Construction Program Integration", :integration do
         @output_file.close
       end
 
-      unless @verbose
-        # Clean up PDF files after each test
-        File.delete(pdf_filename) if File.exist?(pdf_filename)
+      unless ENV['KEEP_PDFS'] == 'true'
+        FileUtils.rm_rf(tmp_dir)
       end
     end
 
     it "generates a dependency diagram" do
-      allow(program).to receive(:name).and_return("#{program_name} - #{solver_name}")
+      program.solve
       program.dependency_diagram
       expect(File.exist?(pdf_filename)).to be true
       log "\nGenerated PDF diagram: #{pdf_filename}" if @verbose

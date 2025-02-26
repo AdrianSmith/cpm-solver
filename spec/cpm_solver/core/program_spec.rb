@@ -2,7 +2,7 @@ require "spec_helper"
 require "fileutils"
 
 RSpec.describe CpmSolver::Core::Program do
-  let(:tmp_dir) { "tmp/diagrams" }
+  let(:tmp_dir) { 'tmp' }
   let(:keep_pdfs) { ENV['KEEP_PDFS'] == 'true' }
   let(:program) { described_class.new("Test") }
   let(:activity_A) { CpmSolver::Core::Activity.new("A", "Task A", 3) }
@@ -15,11 +15,11 @@ RSpec.describe CpmSolver::Core::Program do
   let(:activity_H) { CpmSolver::Core::Activity.new("H", "Task H", 8) }
   let(:activity_End) { CpmSolver::Core::Activity.new("End", "End", 0) }
 
-  before do
+  before(:each) do
     FileUtils.mkdir_p(tmp_dir)
   end
 
-  after do
+  after(:each) do
     unless keep_pdfs
       Dir.glob(File.join(tmp_dir, "*.pdf")).each do |file|
         File.delete(file) if File.exist?(file)
