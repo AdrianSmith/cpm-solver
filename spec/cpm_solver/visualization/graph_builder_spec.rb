@@ -170,10 +170,10 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
     end
 
     it "includes dependencies between activities" do
-      expect(gantt).to include("After A")
-      expect(gantt).to include("After B, C")
+      expect(gantt).to include("Task B : after Task A")
+      expect(gantt).to include("Task C : after Task A")
+      expect(gantt).to include("Task D : after Task B, Task C")
 
-      # Generate the HTML file
       save_gantt_chart(gantt)
     end
 
@@ -191,7 +191,7 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
         <html>
         <head>
           <title>Test Program - Gantt Chart</title>
-          <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
           <script>
             mermaid.initialize({
               startOnLoad: true,
@@ -200,9 +200,17 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
                 titleTopMargin: 25,
                 barHeight: 20,
                 barGap: 4,
-                topPadding: 50,
-                sidePadding: 50
-              }
+                topPadding: 75,
+                leftPadding: 75,
+                rightPadding: 75,
+                displayMode: 'default',
+                dependencies: true,
+                numberSectionStyles: 4,
+                showDependencies: true,
+                dependencyArrowSize: 10,
+                useMaxWidth: true
+              },
+              securityLevel: 'loose'
             });
           </script>
           <style>
@@ -212,7 +220,7 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
               background-color: #f5f5f5;
             }
             .container {
-              max-width: 1200px;
+              max-width: 1400px;
               margin: 0 auto;
               padding: 20px;
               background-color: white;
@@ -229,15 +237,17 @@ RSpec.describe CpmSolver::Visualization::GraphBuilder do
               padding: 20px;
               border-radius: 5px;
               box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+              width: 100%;
+              height: auto;
             }
           </style>
         </head>
         <body>
           <div class="container">
             <h1>Test Program - Gantt Chart</h1>
-            <div class="mermaid">
+            <pre class="mermaid">
               #{cleaned_content}
-            </div>
+            </pre>
           </div>
         </body>
         </html>
